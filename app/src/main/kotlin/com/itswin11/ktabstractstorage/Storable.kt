@@ -25,3 +25,18 @@ interface Storable {
      */
     val name: String
 }
+
+/**
+ * Abstract base class for [Storable] implementations that provides a default `toString()` implementation.
+ */
+abstract class StorableBase : Storable {
+    /**
+     * Returns a string representation in the format `name (ID)`.
+     */
+    override fun toString(): String = "$name ($id)"
+}
+
+/**
+ * Returns a string representation in the format `name (ID)`.
+ */
+fun Storable.toDisplayString(): String = "$name ($id)"

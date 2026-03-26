@@ -9,7 +9,6 @@ import com.itswin11.ktabstractstorage.streams.truncated
  *
  * @param file The wrapped file.
  * @param maxLength The maximum number of bytes exposed by opened streams.
- * @param parentOverride Optional parent to report instead of the wrapped file's parent.
  */
 class TruncatedFile(
     val file: File,

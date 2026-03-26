@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.map
 /**
  * A [Folder] wrapper that limits every file it returns to [maxFileLength] bytes.
  *
- * Files are wrapped as [TruncatedFile] instances. Non-file children are returned as-is,
+ * File children are wrapped as [TruncatedFile] instances and re-parented to this
+ * wrapper using [ParentOverrideChildFile]. Non-file children are returned as-is,
  * matching the original folder traversal behavior.
  *
  * @param folder The wrapped folder.
@@ -38,6 +39,14 @@ class TruncatedFilesFolder(
     override suspend fun getParentAsync(): Folder? =
         parentOverride ?: (folder as? StorableChild)?.getParentAsync()
 
+    private fun wrapChild(item: StorableChild): StorableChild = when (item) {
+        is ChildFile -> ParentOverrideChildFile(
+            inner = TruncatedFile(item, maxFileLength),
+            parent = this,
+        )
+        else -> item
+    }
+
     override fun getItemsAsync(type: StorableType): Flow<StorableChild> =
         folder.getItemsAsync(type).map(::wrapChild)
 
@@ -49,10 +58,4 @@ class TruncatedFilesFolder(
 
     override suspend fun getFirstByNameAsync(name: String): StorableChild =
         wrapChild(folder.getFirstByNameAsync(name))
-
-    private fun wrapChild(item: StorableChild): StorableChild = when (item) {
-        is ChildFile -> TruncatedFile(item, maxFileLength)
-        else -> item
-    }
 }
-

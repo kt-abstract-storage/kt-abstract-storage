@@ -47,7 +47,7 @@ class MemoryStream(initialCapacity: Int = 1024) : UnifiedStream() {
         ensureNotClosed()
         val internalBuffer = this.buffer!!
 
-        if (_position >= _length) return -1
+        if (_position >= _length) return 0
 
         val available = (_length - _position).toInt()
         val toRead = min(count, available)

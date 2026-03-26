@@ -76,7 +76,7 @@ class MemoryFile internal constructor(
             ensureOpen()
             ensureReadable()
 
-            if (cursor >= file.content.size) return@synchronized -1
+            if (cursor >= file.content.size) return@synchronized 0
 
             val startIndex = cursor.toInt()
             val toRead = min(count, file.content.size - startIndex)

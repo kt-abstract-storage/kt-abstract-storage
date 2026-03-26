@@ -39,8 +39,8 @@ class FileStream(
         get() = raf.filePointer
         set(value) = raf.seek(value)
 
-    override fun read(buffer: ByteArray, offset: Int, count: Int): Int
-        = raf.read(buffer, offset, count)
+    override fun read(buffer: ByteArray, offset: Int, count: Int): Int =
+        raf.read(buffer, offset, count).coerceAtLeast(0)
 
     override fun write(buffer: ByteArray, offset: Int, count: Int)
         = raf.write(buffer, offset, count)

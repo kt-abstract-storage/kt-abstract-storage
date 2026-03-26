@@ -11,6 +11,8 @@ interface GetFirstByName : Folder {
     /**
      * Retrieves the first [StorableChild] item which has the provided [name].
      *
+     * @param name Name to match.
+     *
      * @throws FileNotFoundException if the item is not found.
      */
     suspend fun getFirstByNameAsync(name: String): StorableChild

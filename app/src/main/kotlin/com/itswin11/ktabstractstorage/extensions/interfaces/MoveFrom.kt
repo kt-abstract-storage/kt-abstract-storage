@@ -17,6 +17,14 @@ typealias MoveFromDelegate = suspend (
  * Provides a fast-path for moving files between folders.
  */
 interface MoveFrom : ModifiableFolder {
+    /**
+     * Moves [fileToMove] from [source] into this folder or delegates to [fallback].
+     *
+     * @param fileToMove File to move.
+     * @param source Folder currently containing [fileToMove].
+     * @param overwrite Whether to overwrite an existing destination file.
+     * @param fallback Fallback implementation when a specialized fast-path is not used.
+     */
     suspend fun moveFromAsync(
         fileToMove: ChildFile,
         source: ModifiableFolder,

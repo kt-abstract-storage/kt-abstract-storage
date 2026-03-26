@@ -30,6 +30,8 @@ fun Folder.getFoldersAsync(): Flow<ChildFolder> =
 /**
  * Retrieves the child item that has the provided [id].
  *
+ * @param id Identifier of the child item to locate.
+ *
  * @throws FileNotFoundException if no item with [id] exists in this folder.
  */
 suspend fun Folder.getItemAsync(id: String): StorableChild {
@@ -43,6 +45,8 @@ suspend fun Folder.getItemAsync(id: String): StorableChild {
 
 /**
  * Recursively crawls this folder tree for an item with the provided [id].
+ *
+ * @param id Identifier of the child item to locate recursively.
  *
  * @throws FileNotFoundException if no item with [id] exists in this folder tree.
  */
@@ -84,6 +88,8 @@ suspend fun Folder.getItemRecursiveAsync(id: String): StorableChild {
 /**
  * Retrieves the first child item that has the provided [name].
  *
+ * @param name Name of the child item to locate.
+ *
  * @throws FileNotFoundException if no item with [name] exists in this folder.
  */
 suspend fun Folder.getFirstByNameAsync(name: String): StorableChild {
@@ -97,6 +103,8 @@ suspend fun Folder.getFirstByNameAsync(name: String): StorableChild {
 
 /**
  * Computes a relative path from this folder to [to].
+ *
+ * @param to Destination item for which the relative path is calculated.
  */
 suspend fun Folder.getRelativePathToAsync(to: StorableChild): String {
     if (this.id == to.id) {
@@ -127,6 +135,8 @@ suspend fun Folder.getRelativePathToAsync(to: StorableChild): String {
 
 /**
  * Yields items along the relative path from this folder to [to], excluding this folder.
+ *
+ * @param to Destination item whose path chain will be emitted.
  */
 fun Folder.getItemsAlongRelativePathToAsync(to: StorableChild): Flow<Storable> = flow {
     if (this@getItemsAlongRelativePathToAsync.id == to.id) {

@@ -23,6 +23,8 @@ suspend fun StorableChild.getRootAsync(): Folder? {
 
 /**
  * Resolves [relativePath] starting from this item and returns the target item.
+ *
+ * @param relativePath Relative path to resolve.
  */
 suspend fun Storable.getItemByRelativePathAsync(relativePath: String): Storable {
     var current: Storable = this
@@ -69,6 +71,8 @@ suspend fun Storable.getItemByRelativePathAsync(relativePath: String): Storable 
 
 /**
  * Resolves [relativePath] starting from this item and yields each visited item in order.
+ *
+ * @param relativePath Relative path to resolve and emit along.
  */
 fun Storable.getItemsAlongRelativePathAsync(relativePath: String): Flow<Storable> = flow {
     var current: Storable = this@getItemsAlongRelativePathAsync

@@ -8,6 +8,8 @@ import java.nio.charset.Charset
 
 /**
  * Opens this file for reading and reads all bytes.
+ *
+ * @param bufferSize Size of the temporary read buffer.
  */
 suspend fun File.readBytesAsync(bufferSize: Int = DEFAULT_BUFFER_SIZE): ByteArray {
     require(bufferSize > 0) { "bufferSize must be greater than zero." }
@@ -31,6 +33,9 @@ suspend fun File.readBytesAsync(bufferSize: Int = DEFAULT_BUFFER_SIZE): ByteArra
 
 /**
  * Opens this file for reading and reads all text with [charset].
+ *
+ * @param charset Text charset used to decode bytes.
+ * @param bufferSize Size of the temporary read buffer.
  */
 suspend fun File.readTextAsync(
     charset: Charset = Charsets.UTF_8,
@@ -39,6 +44,8 @@ suspend fun File.readTextAsync(
 
 /**
  * Reads text lines in [lineRange] (start inclusive, end exclusive).
+ *
+ * @param lineRange Pair of line indexes as start-inclusive and end-exclusive.
  */
 fun File.readTextAsync(lineRange: Pair<Int, Int>): Flow<String> = flow {
     val (start, endExclusive) = lineRange
@@ -54,6 +61,9 @@ fun File.readTextAsync(lineRange: Pair<Int, Int>): Flow<String> = flow {
 
 /**
  * Reads text lines in [lineRange] with [columnRange] (both end-exclusive).
+ *
+ * @param lineRange Pair of line indexes as start-inclusive and end-exclusive.
+ * @param columnRange Pair of column indexes as start-inclusive and end-exclusive.
  */
 fun File.readTextAsync(
     lineRange: Pair<Int, Int>,

@@ -18,6 +18,14 @@ typealias CreateRenamedCopyOfDelegate = suspend (
  * Provides a fast-path for copying and renaming files into a folder.
  */
 interface CreateRenamedCopyOf : CreateCopyOf {
+    /**
+     * Copies [fileToCopy] into this folder as [newName] or delegates to [fallback].
+     *
+     * @param fileToCopy Source file to copy.
+     * @param overwrite Whether to overwrite an existing destination file.
+     * @param newName Name to assign to the created copy.
+     * @param fallback Fallback implementation when a specialized fast-path is not used.
+     */
     suspend fun createCopyOfAsync(
         fileToCopy: File,
         overwrite: Boolean,

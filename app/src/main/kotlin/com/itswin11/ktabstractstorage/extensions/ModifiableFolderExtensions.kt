@@ -13,6 +13,9 @@ import java.nio.file.FileAlreadyExistsException
 
 /**
  * Creates a copy of [fileToCopy] within this folder.
+ *
+ * @param fileToCopy Source file to copy.
+ * @param overwrite Whether to overwrite an existing destination file.
  */
 suspend fun ModifiableFolder.createCopyOfAsync(
     fileToCopy: File,
@@ -29,6 +32,10 @@ suspend fun ModifiableFolder.createCopyOfAsync(
 
 /**
  * Creates a copy of [fileToCopy] within this folder using [newName].
+ *
+ * @param fileToCopy Source file to copy.
+ * @param overwrite Whether to overwrite an existing destination file.
+ * @param newName Name to assign to the created copy.
  */
 suspend fun ModifiableFolder.createCopyOfAsync(
     fileToCopy: File,
@@ -49,6 +56,8 @@ suspend fun ModifiableFolder.createCopyOfAsync(
 
 /**
  * Copies this file's content into [destinationFile].
+ *
+ * @param destinationFile Target file that receives copied content.
  */
 suspend fun File.copyToAsync(destinationFile: File) {
     openStreamAsync(FileAccessMode.READ).use { sourceStream ->
@@ -70,6 +79,10 @@ suspend fun File.copyToAsync(destinationFile: File) {
 
 /**
  * Moves [fileToMove] from [source] into this folder.
+ *
+ * @param fileToMove Source file to move.
+ * @param source Folder currently containing [fileToMove].
+ * @param overwrite Whether to overwrite an existing destination file.
  */
 suspend fun ModifiableFolder.moveFromAsync(
     fileToMove: ChildFile,
@@ -87,6 +100,11 @@ suspend fun ModifiableFolder.moveFromAsync(
 
 /**
  * Moves [fileToMove] from [source] into this folder using [newName].
+ *
+ * @param fileToMove Source file to move.
+ * @param source Folder currently containing [fileToMove].
+ * @param overwrite Whether to overwrite an existing destination file.
+ * @param newName Name to assign to the moved file.
  */
 suspend fun ModifiableFolder.moveFromAsync(
     fileToMove: ChildFile,

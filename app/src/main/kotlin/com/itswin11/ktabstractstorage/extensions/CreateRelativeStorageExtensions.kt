@@ -12,6 +12,10 @@ import kotlinx.coroutines.flow.flow
 
 /**
  * Creates an item by [relativePath] starting from this folder.
+ *
+ * @param relativePath Path to create relative to this folder.
+ * @param targetType The terminal item type to create.
+ * @param overwrite Whether to overwrite existing terminal item when supported.
  */
 suspend fun Folder.createByRelativePathAsync(
     relativePath: String,
@@ -21,6 +25,10 @@ suspend fun Folder.createByRelativePathAsync(
 
 /**
  * Creates an item by [relativePath] starting from this child file.
+ *
+ * @param relativePath Path to create relative to this file's parent chain.
+ * @param targetType The terminal item type to create.
+ * @param overwrite Whether to overwrite existing terminal item when supported.
  */
 suspend fun ChildFile.createByRelativePathAsync(
     relativePath: String,
@@ -28,26 +36,56 @@ suspend fun ChildFile.createByRelativePathAsync(
     overwrite: Boolean = false,
 ): Storable = createByRelativePathCoreAsync(this, relativePath, targetType, overwrite)
 
+/**
+ * Creates a folder by [relativePath] starting from this folder.
+ *
+ * @param relativePath Path to create relative to this folder.
+ * @param overwrite Whether to overwrite the terminal item when supported.
+ */
 suspend fun Folder.createFolderByRelativePathAsync(
     relativePath: String,
     overwrite: Boolean = false,
 ): ChildFolder = createByRelativePathAsync(relativePath, StorableType.FOLDER, overwrite) as ChildFolder
 
+/**
+ * Creates a folder by [relativePath] starting from this child file.
+ *
+ * @param relativePath Path to create relative to this file's parent chain.
+ * @param overwrite Whether to overwrite the terminal item when supported.
+ */
 suspend fun ChildFile.createFolderByRelativePathAsync(
     relativePath: String,
     overwrite: Boolean = false,
 ): ChildFolder = createByRelativePathAsync(relativePath, StorableType.FOLDER, overwrite) as ChildFolder
 
+/**
+ * Creates a file by [relativePath] starting from this folder.
+ *
+ * @param relativePath Path to create relative to this folder.
+ * @param overwrite Whether to overwrite the terminal file when supported.
+ */
 suspend fun Folder.createFileByRelativePathAsync(
     relativePath: String,
     overwrite: Boolean = false,
 ): ChildFile = createByRelativePathAsync(relativePath, StorableType.FILE, overwrite) as ChildFile
 
+/**
+ * Creates a file by [relativePath] starting from this child file.
+ *
+ * @param relativePath Path to create relative to this file's parent chain.
+ * @param overwrite Whether to overwrite the terminal file when supported.
+ */
 suspend fun ChildFile.createFileByRelativePathAsync(
     relativePath: String,
     overwrite: Boolean = false,
 ): ChildFile = createByRelativePathAsync(relativePath, StorableType.FILE, overwrite) as ChildFile
 
+/**
+ * Creates folders along [relativePath] and emits each created or resolved folder.
+ *
+ * @param relativePath Path to create relative to this folder.
+ * @param overwrite Whether to overwrite an existing terminal item when supported.
+ */
 fun Folder.createFoldersAlongRelativePathAsync(
     relativePath: String,
     overwrite: Boolean = false,
@@ -56,6 +94,12 @@ fun Folder.createFoldersAlongRelativePathAsync(
         .collect { if (it is Folder) emit(it) }
 }
 
+/**
+ * Creates folders along [relativePath] and emits each created or resolved folder.
+ *
+ * @param relativePath Path to create relative to this file's parent chain.
+ * @param overwrite Whether to overwrite an existing terminal item when supported.
+ */
 fun ChildFile.createFoldersAlongRelativePathAsync(
     relativePath: String,
     overwrite: Boolean = false,
@@ -64,12 +108,26 @@ fun ChildFile.createFoldersAlongRelativePathAsync(
         .collect { if (it is Folder) emit(it) }
 }
 
+/**
+ * Creates items along [relativePath] and emits each created or resolved item.
+ *
+ * @param relativePath Path to create relative to this folder.
+ * @param targetType The terminal item type to create.
+ * @param overwrite Whether to overwrite an existing terminal item when supported.
+ */
 fun Folder.createAlongRelativePathAsync(
     relativePath: String,
     targetType: StorableType,
     overwrite: Boolean = false,
 ): Flow<Storable> = createAlongRelativePathCoreAsync(this, relativePath, targetType, overwrite)
 
+/**
+ * Creates items along [relativePath] and emits each created or resolved item.
+ *
+ * @param relativePath Path to create relative to this file's parent chain.
+ * @param targetType The terminal item type to create.
+ * @param overwrite Whether to overwrite an existing terminal item when supported.
+ */
 fun ChildFile.createAlongRelativePathAsync(
     relativePath: String,
     targetType: StorableType,

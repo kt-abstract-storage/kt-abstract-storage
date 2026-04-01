@@ -9,7 +9,10 @@
 
 ## Modules
 
-- `:app` - publishable core library (`kt-abstract-storage-core`)
+- `:commonLib` - multiplatform core abstractions (`kt-abstract-storage-core`)
+- `:storage-jvm-core` - Android-safe JVM implementations (`kt-abstract-storage-jvm-core`)
+- `:storage-jvm-nio` - desktop JVM `java.nio.file` implementations (`kt-abstract-storage-jvm-nio`)
+- `:storage-android` - Android integration scaffold (`kt-abstract-storage-android`)
 - `buildSrc` - shared Gradle convention plugin
 
 ## Build and test
@@ -18,7 +21,7 @@ Use the Gradle wrapper from the repository root:
 
 - `./gradlew build`
 - `./gradlew test`
-- `./gradlew :app:test`
+- `./gradlew :commonLib:jvmTest`
 - `./gradlew clean`
 
 ## Publishing
@@ -33,7 +36,7 @@ The shared convention configures (via `com.vanniktech.maven.publish`):
 
 Coordinates and POM metadata are controlled through `gradle.properties` and module-level `mavenPublishing { coordinates(...) }` blocks.
 
-The publishable library module is `:app` (`kt-abstract-storage-core`).
+Publishable artifacts are produced from `:commonLib`, `:storage-jvm-core`, `:storage-jvm-nio`, and `:storage-android`.
 
 For Maven Central + signing credentials, set:
 
@@ -66,12 +69,18 @@ Notes:
 ### Local publish
 
 - `./gradlew publishToMavenLocal`
-- `./gradlew :app:publishToMavenLocal`
+- `./gradlew :commonLib:publishToMavenLocal`
+- `./gradlew :storage-jvm-core:publishToMavenLocal`
+- `./gradlew :storage-jvm-nio:publishToMavenLocal`
+- `./gradlew :storage-android:publishToMavenLocal`
 
 ### Publish to configured remotes
 
 - `./gradlew publish`
-- `./gradlew :app:publish`
+- `./gradlew :commonLib:publish`
+- `./gradlew :storage-jvm-core:publish`
+- `./gradlew :storage-jvm-nio:publish`
+- `./gradlew :storage-android:publish`
 
 If remote credentials/signing keys are missing, only local publication is expected to work.
 

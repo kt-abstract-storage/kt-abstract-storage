@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":app"))
+    implementation(project(":commonLib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
     testImplementation(kotlin("test"))
@@ -11,6 +11,7 @@ dependencies {
 }
 
 mavenPublishing {
-    coordinates(group.toString(), "kt-abstract-storage-jvm", version.toString())
+    coordinates(group.toString(), "kt-abstract-storage-jvm-core", version.toString())
 }
+
 

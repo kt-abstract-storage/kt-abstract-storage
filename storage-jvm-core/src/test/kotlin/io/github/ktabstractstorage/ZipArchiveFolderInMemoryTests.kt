@@ -34,4 +34,3 @@ class ZipArchiveFolderInMemoryTests {
         assertEquals("hello zip", fileFromFolder.readTextAsync())
     }
 }
-

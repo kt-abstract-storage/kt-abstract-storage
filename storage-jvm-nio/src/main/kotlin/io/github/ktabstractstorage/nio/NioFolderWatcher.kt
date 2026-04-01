@@ -1,4 +1,4 @@
-package io.github.ktabstractstorage.system
+package io.github.ktabstractstorage.nio
 
 import io.github.ktabstractstorage.FolderChange
 import io.github.ktabstractstorage.FolderWatcher
@@ -27,12 +27,12 @@ import java.nio.file.WatchService
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Watches a [SystemFolder] for filesystem changes.
+ * Watches a [NioFolder] for filesystem changes.
  *
  * @param watchedFolder The folder being watched.
  */
-class SystemFolderWatcher internal constructor(
-    private val watchedFolder: SystemFolder,
+class NioFolderWatcher internal constructor(
+    private val watchedFolder: NioFolder,
 ) : FolderWatcher {
     private val isClosed = AtomicBoolean(false)
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
@@ -93,8 +93,8 @@ class SystemFolderWatcher internal constructor(
             name = path.fileName?.toString() ?: path.toString(),
         )
 
-        Files.isDirectory(path) -> SystemFolder.createUnvalidated(path)
-        else -> SystemFile.createUnvalidated(path)
+        Files.isDirectory(path) -> NioFolder.createUnvalidated(path)
+        else -> NioFile.createUnvalidated(path)
     }
 }
 

@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Internal storage  (always available, no permissions required)
+// Internal storage (always available, no permissions required)
 // ──────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -241,4 +241,3 @@ suspend fun Context.getExternalCacheDirFolderAsync(): AndroidFolder? =
     withContext(Dispatchers.IO) {
         externalCacheDir?.let { AndroidFolder.createUnvalidated(it) }
     }
-

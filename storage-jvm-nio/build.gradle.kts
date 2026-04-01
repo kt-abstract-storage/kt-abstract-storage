@@ -1,5 +1,15 @@
 plugins {
-    id("buildsrc.convention.kotlin-jvm")
+    kotlin("jvm")
+    `java-library`
+    id("com.vanniktech.maven.publish")
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 dependencies {

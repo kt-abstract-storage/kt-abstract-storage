@@ -1,4 +1,4 @@
-package io.github.ktabstractstorage.system
+package io.github.ktabstractstorage.nio
 
 import io.github.ktabstractstorage.ChildFile
 import io.github.ktabstractstorage.File
@@ -18,7 +18,7 @@ import java.nio.file.Path
  * @param path The path represented by this file.
  * @throws IllegalArgumentException if the path does not exist or is not a regular file.
  */
-class SystemFile(
+class NioFile(
     internal val path: Path,
     private val skipValidation: Boolean = false,
 ) : GetRoot, ChildFile {
@@ -39,16 +39,16 @@ class SystemFile(
 
     override val name: String = normalizedPath.fileName?.toString() ?: normalizedPath.toString()
 
-    override suspend fun getParentAsync(): Folder? = normalizedPath.parent?.let(::SystemFolder)
+    override suspend fun getParentAsync(): Folder? = normalizedPath.parent?.let(::NioFolder)
 
     override suspend fun openStreamAsync(accessMode: FileAccessMode): UnifiedStream =
         withContext(Dispatchers.IO) { FileStream(path.toFile(), accessMode) }
 
     override suspend fun getRootAsync(): Folder? =
-        normalizedPath.root?.let(::SystemFolder)
+        normalizedPath.root?.let(::NioFolder)
 
 
     internal companion object {
-        fun createUnvalidated(path: Path) = SystemFile(path, skipValidation = true)
+        fun createUnvalidated(path: Path) = NioFile(path, skipValidation = true)
     }
 }

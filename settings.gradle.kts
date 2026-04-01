@@ -9,6 +9,14 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
+
+    plugins {
+        id("org.jetbrains.kotlin.jvm") version "2.2.0"
+        id("org.jetbrains.kotlin.multiplatform") version "2.2.0"
+        id("org.jetbrains.kotlin.android") version "2.2.0"
+        id("com.android.library") version "8.7.3"
+        id("com.vanniktech.maven.publish") version "0.34.0"
+    }
 }
 
 dependencyResolutionManagement {

@@ -1,4 +1,4 @@
-package io.github.ktabstractstorage.system
+package io.github.ktabstractstorage.nio
 
 import io.github.ktabstractstorage.ChildFile
 import io.github.ktabstractstorage.ChildFolder
@@ -37,7 +37,7 @@ import java.util.Comparator
  * @param path The path represented by this folder.
  * @throws IllegalArgumentException if the path does not exist or is not a directory.
  */
-class SystemFolder(
+class NioFolder(
     internal val path: Path,
     private val skipValidation: Boolean = false,
 ) : CreateRenamedCopyOf,
@@ -65,7 +65,7 @@ class SystemFolder(
 
     override val name: String = normalizedPath.fileName?.toString() ?: normalizedPath.toString()
 
-    override suspend fun getParentAsync(): Folder? = normalizedPath.parent?.let(::SystemFolder)
+    override suspend fun getParentAsync(): Folder? = normalizedPath.parent?.let(::NioFolder)
 
     override fun getItemsAsync(type: StorableType): Flow<StorableChild> = flow {
         require(type != StorableType.NONE) {
@@ -126,8 +126,8 @@ class SystemFolder(
             ?: throw FileNotFoundException("No storage item with the name '$name' could be found.")
     }
 
-    override suspend fun getFolderWatcherAsync(): SystemFolderWatcher = withContext(Dispatchers.IO) {
-        SystemFolderWatcher(this@SystemFolder)
+    override suspend fun getFolderWatcherAsync(): NioFolderWatcher = withContext(Dispatchers.IO) {
+        NioFolderWatcher(this@NioFolder)
     }
 
     override suspend fun deleteAsync(item: StorableChild) = withContext(Dispatchers.IO) {
@@ -165,7 +165,7 @@ class SystemFolder(
                     if (overwrite) {
                         Files.newOutputStream(target, CREATE, TRUNCATE_EXISTING).use { }
                     }
-                    return@withContext SystemFile.createUnvalidated(target)
+                    return@withContext NioFile.createUnvalidated(target)
                 }
                 !overwrite -> throw FileAlreadyExistsException(target.toString())
                 else -> {
@@ -174,7 +174,7 @@ class SystemFolder(
                 }
             }
 
-            SystemFile.createUnvalidated(target)
+            NioFile.createUnvalidated(target)
         }
 
     override suspend fun moveFromAsync(
@@ -183,11 +183,11 @@ class SystemFolder(
         overwrite: Boolean,
         fallback: MoveFromDelegate,
     ): ChildFile = withContext(Dispatchers.IO) {
-        if (fileToMove is SystemFile) {
+        if (fileToMove is NioFile) {
             return@withContext moveSystemFile(fileToMove.path, overwrite, fileToMove.name)
         }
 
-        fallback(this@SystemFolder, fileToMove, source, overwrite)
+        fallback(this@NioFolder, fileToMove, source, overwrite)
     }
 
     override suspend fun moveFromAsync(
@@ -197,11 +197,11 @@ class SystemFolder(
         newName: String,
         fallback: MoveRenamedFromDelegate,
     ): ChildFile = withContext(Dispatchers.IO) {
-        if (fileToMove is SystemFile) {
+        if (fileToMove is NioFile) {
             return@withContext moveSystemFile(fileToMove.path, overwrite, newName)
         }
 
-        fallback(this@SystemFolder, fileToMove, source, overwrite, newName)
+        fallback(this@NioFolder, fileToMove, source, overwrite, newName)
     }
 
     override suspend fun createCopyOfAsync(
@@ -209,11 +209,11 @@ class SystemFolder(
         overwrite: Boolean,
         fallback: CreateCopyOfDelegate,
     ): ChildFile = withContext(Dispatchers.IO) {
-        if (fileToCopy is SystemFile) {
+        if (fileToCopy is NioFile) {
             return@withContext copySystemFile(fileToCopy.path, overwrite, fileToCopy.name)
         }
 
-        fallback(this@SystemFolder, fileToCopy, overwrite)
+        fallback(this@NioFolder, fileToCopy, overwrite)
     }
 
     override suspend fun createCopyOfAsync(
@@ -222,20 +222,20 @@ class SystemFolder(
         newName: String,
         fallback: CreateRenamedCopyOfDelegate,
     ): ChildFile = withContext(Dispatchers.IO) {
-        if (fileToCopy is SystemFile) {
+        if (fileToCopy is NioFile) {
             return@withContext copySystemFile(fileToCopy.path, overwrite, newName)
         }
 
-        fallback(this@SystemFolder, fileToCopy, overwrite, newName)
+        fallback(this@NioFolder, fileToCopy, overwrite, newName)
     }
 
     override suspend fun getRootAsync(): Folder? =
-        normalizedPath.root?.let(::SystemFolder)
+        normalizedPath.root?.let(::NioFolder)
 
 
     private fun childForPath(path: Path): StorableChild? = when {
         Files.isDirectory(path) -> createUnvalidated(path)
-        Files.isRegularFile(path) -> SystemFile.createUnvalidated(path)
+        Files.isRegularFile(path) -> NioFile.createUnvalidated(path)
         else -> null
     }
 
@@ -251,7 +251,7 @@ class SystemFolder(
         when {
             Files.notExists(destinationPath) -> Files.move(sourcePath, destinationPath)
             Files.isRegularFile(destinationPath) && overwrite -> Files.move(sourcePath, destinationPath, REPLACE_EXISTING)
-            Files.isRegularFile(destinationPath) -> return SystemFile.createUnvalidated(destinationPath)
+            Files.isRegularFile(destinationPath) -> return NioFile.createUnvalidated(destinationPath)
             !overwrite -> throw FileAlreadyExistsException(destinationPath.toString())
             else -> {
                 deleteRecursively(destinationPath)
@@ -259,7 +259,7 @@ class SystemFolder(
             }
         }
 
-        return SystemFile.createUnvalidated(destinationPath)
+        return NioFile.createUnvalidated(destinationPath)
     }
 
     private fun copySystemFile(sourcePath: Path, overwrite: Boolean, newName: String): ChildFile {
@@ -268,7 +268,7 @@ class SystemFolder(
         when {
             Files.notExists(destinationPath) -> Files.copy(sourcePath, destinationPath)
             Files.isRegularFile(destinationPath) && overwrite -> Files.copy(sourcePath, destinationPath, REPLACE_EXISTING)
-            Files.isRegularFile(destinationPath) -> return SystemFile.createUnvalidated(destinationPath)
+            Files.isRegularFile(destinationPath) -> return NioFile.createUnvalidated(destinationPath)
             !overwrite -> throw FileAlreadyExistsException(destinationPath.toString())
             else -> {
                 deleteRecursively(destinationPath)
@@ -276,13 +276,13 @@ class SystemFolder(
             }
         }
 
-        return SystemFile.createUnvalidated(destinationPath)
+        return NioFile.createUnvalidated(destinationPath)
     }
 
     private fun resolveChildPath(item: StorableChild): Path {
         val candidate = when (item) {
-            is SystemFile -> item.path
-            is SystemFolder -> item.path
+            is NioFile -> item.path
+            is NioFolder -> item.path
             else -> normalizedPath.resolve(item.name)
         }.toAbsolutePath().normalize()
 
@@ -304,6 +304,6 @@ class SystemFolder(
     }
 
     internal companion object {
-        fun createUnvalidated(path: Path) = SystemFolder(path, skipValidation = true)
+        fun createUnvalidated(path: Path) = NioFolder(path, skipValidation = true)
     }
 }

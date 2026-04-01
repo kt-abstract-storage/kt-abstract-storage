@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import io.github.ktabstractstorage.ChildFile
 import io.github.ktabstractstorage.Folder
 import io.github.ktabstractstorage.enums.FileAccessMode
+import io.github.ktabstractstorage.extensions.interfaces.GetRoot
 import io.github.ktabstractstorage.streams.FileStream
 import io.github.ktabstractstorage.streams.UnifiedStream
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,7 @@ import java.nio.file.Path
 class AndroidFile internal constructor(
     internal val file: File,
     private val skipValidation: Boolean = false,
-) : ChildFile {
+) : GetRoot, ChildFile {
 
     /**
      * Constructs an [AndroidFile] from a [java.nio.file.Path].
@@ -65,6 +66,14 @@ class AndroidFile internal constructor(
 
     override suspend fun openStreamAsync(accessMode: FileAccessMode): UnifiedStream =
         withContext(Dispatchers.IO) { FileStream(file, accessMode) }
+
+    override suspend fun getRootAsync(): Folder? = withContext(Dispatchers.IO) {
+        var current: File = file.canonicalFile
+        while (current.parentFile != null) {
+            current = current.parentFile!!
+        }
+        AndroidFolder.createUnvalidated(current)
+    }
 
     internal companion object {
         fun createUnvalidated(file: File) = AndroidFile(file, skipValidation = true)

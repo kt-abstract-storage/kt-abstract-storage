@@ -1,7 +1,7 @@
 package io.github.ktabstractstorage
 
 import io.github.ktabstractstorage.enums.StorableType
-import io.github.ktabstractstorage.system.SystemFolder
+import io.github.ktabstractstorage.nio.NioFolder
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Files
@@ -10,12 +10,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class SystemStorageTests {
+class NioStorageTests {
     @Test
     fun system_folder_create_list_delete_roundtrip() = runTest {
         val rootPath = Files.createTempDirectory("kt-abstract-storage")
         try {
-            val root = SystemFolder(rootPath)
+            val root = NioFolder(rootPath)
 
             val file = root.createFileAsync("a.txt")
             val folder = root.createFolderAsync("sub")

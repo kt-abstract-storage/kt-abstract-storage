@@ -1,12 +1,12 @@
 plugins {
-    id("com.android.library") version "8.7.3"
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.vanniktech.maven.publish")
 }
 
 android {
     namespace = "io.github.ktabstractstorage.android"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21

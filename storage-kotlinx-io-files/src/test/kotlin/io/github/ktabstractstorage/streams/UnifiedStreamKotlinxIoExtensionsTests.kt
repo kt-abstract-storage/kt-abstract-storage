@@ -113,7 +113,12 @@ class UnifiedStreamKotlinxIoExtensionsTests {
         val output = ByteArrayOutputStream()
         val sink = output.asSink().buffered()
 
-        val unified = source.asUnifiedStream(sink, closeSourceOnClose = true, closeSinkOnClose = true)
+        val unified = UnifiedStream.combineIoStreams(
+            source = source,
+            sink = sink,
+            closeSourceOnClose = true,
+            closeSinkOnClose = true,
+        )
 
         val readBack = ByteArray(sourceBytes.size)
         val read = unified.read(readBack, 0, readBack.size)
@@ -135,7 +140,12 @@ class UnifiedStreamKotlinxIoExtensionsTests {
         val output = ByteArrayOutputStream()
         val sink = output.asSink().buffered()
 
-        val unified = source.asUnifiedStream(sink, closeSourceOnClose = false, closeSinkOnClose = false)
+        val unified = UnifiedStream.combineIoStreams(
+            source = source,
+            sink = sink,
+            closeSourceOnClose = false,
+            closeSinkOnClose = false,
+        )
         unified.close()
 
         // Source is still open because closeSourceOnClose=false.
@@ -148,5 +158,25 @@ class UnifiedStreamKotlinxIoExtensionsTests {
         sink.writeByte(42)
         sink.flush()
         assertContentEquals(byteArrayOf(42), output.toByteArray())
+    }
+
+    @Test
+    fun companion_combine_io_streams_creates_duplex_stream() {
+        val sourceBytes = "companion-kio".encodeToByteArray()
+        val source = ByteArrayInputStream(sourceBytes).asSource().buffered()
+        val output = ByteArrayOutputStream()
+        val sink = output.asSink().buffered()
+
+        val unified = UnifiedStream.combineIoStreams(source, sink)
+
+        val readBack = ByteArray(sourceBytes.size)
+        val read = unified.read(readBack, 0, readBack.size)
+        unified.write(byteArrayOf(5, 6), 0, 2)
+        unified.flush()
+        unified.close()
+
+        assertEquals(sourceBytes.size, read)
+        assertContentEquals(sourceBytes, readBack)
+        assertContentEquals(byteArrayOf(5, 6), output.toByteArray())
     }
 }

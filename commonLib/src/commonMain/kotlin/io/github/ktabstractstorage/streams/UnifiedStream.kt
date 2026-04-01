@@ -13,6 +13,8 @@ import kotlinx.coroutines.withContext
  * are determined by the properties of the implementation.
  */
 abstract class UnifiedStream : AutoCloseable {
+    companion object {}
+
     /**
      * Determines whether the stream can be read from.
      */

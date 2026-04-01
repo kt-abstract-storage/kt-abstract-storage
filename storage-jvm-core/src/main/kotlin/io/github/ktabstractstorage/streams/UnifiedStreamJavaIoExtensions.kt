@@ -49,33 +49,16 @@ fun OutputStream.asUnifiedStream(closeOutputStreamOnClose: Boolean = true): Unif
     OutputStreamUnifiedAdapter(this, closeOutputStreamOnClose)
 
 /**
- * Exposes this [InputStream] together with [output] as a single [UnifiedStream].
- *
- * The resulting stream is non-seekable and supports both read and write.
+ * Combines an [input] and [output] stream into one non-seekable [UnifiedStream].
  */
-fun InputStream.asUnifiedStream(
+fun UnifiedStream.Companion.combineIoStreams(
+    input: InputStream,
     output: OutputStream,
     closeInputStreamOnClose: Boolean = true,
     closeOutputStreamOnClose: Boolean = true,
 ): UnifiedStream = InputOutputStreamUnifiedAdapter(
-    input = this,
-    output = output,
-    closeInputOnClose = closeInputStreamOnClose,
-    closeOutputOnClose = closeOutputStreamOnClose,
-)
-
-/**
- * Exposes this [OutputStream] together with [input] as a single [UnifiedStream].
- *
- * The resulting stream is non-seekable and supports both read and write.
- */
-fun OutputStream.asUnifiedStream(
-    input: InputStream,
-    closeInputStreamOnClose: Boolean = true,
-    closeOutputStreamOnClose: Boolean = true,
-): UnifiedStream = InputOutputStreamUnifiedAdapter(
     input = input,
-    output = this,
+    output = output,
     closeInputOnClose = closeInputStreamOnClose,
     closeOutputOnClose = closeOutputStreamOnClose,
 )

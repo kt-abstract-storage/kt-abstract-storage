@@ -1,6 +1,7 @@
 package io.github.ktabstractstorage
 
-import io.github.ktabstractstorage.streams.asUnifiedStream
+import io.github.ktabstractstorage.streams.UnifiedStream
+import io.github.ktabstractstorage.streams.combineIoStreams
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -18,7 +19,7 @@ class UnifiedStreamJavaIoExtensionsTests {
         val input = ByteArrayInputStream(inputBytes)
         val output = ByteArrayOutputStream()
 
-        val stream = input.asUnifiedStream(output)
+        val stream = UnifiedStream.combineIoStreams(input, output)
 
         val readBack = ByteArray(inputBytes.size)
         val read = stream.read(readBack, 0, readBack.size)
@@ -38,7 +39,8 @@ class UnifiedStreamJavaIoExtensionsTests {
         val input = CloseTrackingInputStream(ByteArrayInputStream("abc".encodeToByteArray()))
         val output = CloseTrackingOutputStream(ByteArrayOutputStream())
 
-        val stream = input.asUnifiedStream(
+        val stream = UnifiedStream.combineIoStreams(
+            input = input,
             output = output,
             closeInputStreamOnClose = false,
             closeOutputStreamOnClose = false,
@@ -62,11 +64,30 @@ class UnifiedStreamJavaIoExtensionsTests {
         val input = CloseTrackingInputStream(ByteArrayInputStream(byteArrayOf(1, 2, 3)))
         val output = CloseTrackingOutputStream(ByteArrayOutputStream())
 
-        val stream = output.asUnifiedStream(input)
+        val stream = UnifiedStream.combineIoStreams(input = input, output = output)
         stream.close()
 
         assertTrue(input.closedByAdapter)
         assertTrue(output.closedByAdapter)
+    }
+
+    @Test
+    fun companion_combine_io_streams_creates_duplex_stream() {
+        val inputBytes = "companion".encodeToByteArray()
+        val input = ByteArrayInputStream(inputBytes)
+        val output = ByteArrayOutputStream()
+
+        val stream = UnifiedStream.combineIoStreams(input, output)
+
+        val readBack = ByteArray(inputBytes.size)
+        val read = stream.read(readBack, 0, readBack.size)
+        stream.write(byteArrayOf(7, 8), 0, 2)
+        stream.flush()
+        stream.close()
+
+        assertEquals(inputBytes.size, read)
+        assertContentEquals(inputBytes, readBack)
+        assertContentEquals(byteArrayOf(7, 8), output.toByteArray())
     }
 
     private class CloseTrackingInputStream(val delegate: InputStream) : InputStream() {
@@ -105,4 +126,3 @@ class UnifiedStreamJavaIoExtensionsTests {
         }
     }
 }
-

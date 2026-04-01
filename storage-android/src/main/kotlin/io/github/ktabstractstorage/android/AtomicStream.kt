@@ -79,6 +79,7 @@ class AtomicStream(
         closed = true
 
         var pending: Throwable? = null
+
         try {
             flush()
             raf.close()

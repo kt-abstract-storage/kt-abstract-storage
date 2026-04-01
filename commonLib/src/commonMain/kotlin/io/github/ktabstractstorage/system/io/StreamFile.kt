@@ -2,9 +2,9 @@ package io.github.ktabstractstorage.system.io
 
 import io.github.ktabstractstorage.File
 import io.github.ktabstractstorage.enums.FileAccessMode
+import io.github.ktabstractstorage.errors.StorageIOException
 import io.github.ktabstractstorage.streams.NonDisposableUnifiedStreamWrapper
 import io.github.ktabstractstorage.streams.UnifiedStream
-import java.io.IOException
 
 /**
  * A [File] implementation that surfaces a provided [UnifiedStream].
@@ -32,12 +32,12 @@ class StreamFile(
 
     private fun validateAccessMode(accessMode: FileAccessMode) {
         if ((accessMode == FileAccessMode.READ || accessMode == FileAccessMode.READ_AND_WRITE) && !stream.canRead) {
-            throw IOException("Requested $accessMode but wrapped stream is not readable.")
+            throw StorageIOException("Requested $accessMode but wrapped stream is not readable.")
         }
 
         if ((accessMode == FileAccessMode.WRITE || accessMode == FileAccessMode.READ_AND_WRITE) && !stream.canWrite) {
-            throw IOException("Requested $accessMode but wrapped stream is not writable.")
+            throw StorageIOException("Requested $accessMode but wrapped stream is not writable.")
         }
     }
-
 }
+

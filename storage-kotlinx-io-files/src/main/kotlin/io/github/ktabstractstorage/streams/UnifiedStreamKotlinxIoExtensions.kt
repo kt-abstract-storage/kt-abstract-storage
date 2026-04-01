@@ -50,31 +50,16 @@ fun Sink.asUnifiedStream(closeSinkOnClose: Boolean = true): UnifiedStream =
     SinkUnifiedStreamAdapter(this, closeSinkOnClose)
 
 /**
- * Exposes this [Source] + [sink] pair as a single non-seekable [UnifiedStream].
- *
- * Reads are delegated to this [Source], writes and flushes are delegated to [sink].
+ * Combines a [source] and [sink] into one non-seekable [UnifiedStream].
  */
-fun Source.asUnifiedStream(
+fun UnifiedStream.Companion.combineIoStreams(
+    source: Source,
     sink: Sink,
     closeSourceOnClose: Boolean = true,
     closeSinkOnClose: Boolean = true,
 ): UnifiedStream = SourceSinkUnifiedStream(
-    source = this,
-    sink = sink,
-    closeSourceOnClose = closeSourceOnClose,
-    closeSinkOnClose = closeSinkOnClose,
-)
-
-/**
- * Exposes this [Sink] + [source] pair as a single non-seekable [UnifiedStream].
- */
-fun Sink.asUnifiedStream(
-    source: Source,
-    closeSourceOnClose: Boolean = true,
-    closeSinkOnClose: Boolean = true,
-): UnifiedStream = SourceSinkUnifiedStream(
     source = source,
-    sink = this,
+    sink = sink,
     closeSourceOnClose = closeSourceOnClose,
     closeSinkOnClose = closeSinkOnClose,
 )

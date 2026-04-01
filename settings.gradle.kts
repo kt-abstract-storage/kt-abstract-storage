@@ -39,6 +39,7 @@ plugins {
 include(":commonLib")
 include(":storage-jvm-core")
 include(":storage-jvm-nio")
+include(":storage-kotlinx-io-files")
 include(":storage-android")
 
 rootProject.name = "kt-abstract-storage"

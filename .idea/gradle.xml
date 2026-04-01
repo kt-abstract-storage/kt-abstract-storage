@@ -24,6 +24,7 @@
             <option value="$PROJECT_DIR$/storage-android" />
             <option value="$PROJECT_DIR$/storage-jvm-core" />
             <option value="$PROJECT_DIR$/storage-jvm-nio" />
+            <option value="$PROJECT_DIR$/storage-kotlinx-io-files" />
           </set>
         </option>
       </GradleProjectSettings>

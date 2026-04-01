@@ -41,9 +41,8 @@ tasks.withType<Test>().configureEach {
 mavenPublishing {
     val isSnapshot = version.toString().endsWith("SNAPSHOT", ignoreCase = true)
 
-    if (!isSnapshot) {
-        publishToMavenCentral()
-    }
+    // Configure Sonatype publishing for both release and snapshot versions.
+    publishToMavenCentral()
 
     val signingKey = providers.gradleProperty("signingInMemoryKey").orNull
     val signingPassword = providers.gradleProperty("signingInMemoryKeyPassword").orNull

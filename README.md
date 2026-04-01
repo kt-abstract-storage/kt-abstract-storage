@@ -59,6 +59,7 @@ Required repository secrets:
 
 Notes:
 
+- `SNAPSHOT` versions publish to Sonatype snapshot repositories.
 - Release versions (non-`SNAPSHOT`) publish to Maven Central.
 - Signing is enabled for non-`SNAPSHOT` versions when signing credentials are present.
 

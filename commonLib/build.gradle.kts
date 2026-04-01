@@ -8,12 +8,18 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+            implementation(libs.kotlinxCoroutinesCore)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+            implementation(libs.kotlinxCoroutinesTest)
+        }
+
+        jvmTest.dependencies {
+            implementation(libs.junitJupiterApi)
+            runtimeOnly(libs.junitJupiterEngine)
+            runtimeOnly(libs.junitPlatformLauncher)
         }
     }
 }

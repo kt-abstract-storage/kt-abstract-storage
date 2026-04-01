@@ -14,14 +14,15 @@ tasks.withType<Test>().configureEach {
 
 dependencies {
     implementation(project(":commonLib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation(libs.kotlinxCoroutinesCore)
 
     testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation(libs.kotlinxCoroutinesTest)
+    testImplementation(libs.junitJupiterApi)
+    testRuntimeOnly(libs.junitJupiterEngine)
+    testRuntimeOnly(libs.junitPlatformLauncher)
 }
 
 mavenPublishing {
     coordinates(group.toString(), "kt-abstract-storage-jvm-core", version.toString())
 }
-
-

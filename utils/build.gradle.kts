@@ -12,10 +12,6 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-publishing {
-    publications {
-        named<org.gradle.api.publish.maven.MavenPublication>("mavenJava") {
-            artifactId = "kt-abstract-storage-utils"
-        }
-    }
+mavenPublishing {
+    coordinates(group.toString(), "kt-abstract-storage-utils", version.toString())
 }

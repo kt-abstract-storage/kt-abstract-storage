@@ -13,10 +13,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }
 
-publishing {
-    publications {
-        named<org.gradle.api.publish.maven.MavenPublication>("mavenJava") {
-            artifactId = "kt-abstract-storage-core"
-        }
-    }
+mavenPublishing {
+    coordinates(group.toString(), "kt-abstract-storage-core", version.toString())
 }

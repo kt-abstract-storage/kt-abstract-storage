@@ -24,23 +24,35 @@ Use the Gradle wrapper from the repository root:
 
 ## Publishing
 
-The shared convention configures:
+The shared convention configures (via `com.vanniktech.maven.publish`):
 
 - reproducible jars
 - `sourcesJar` and `javadocJar`
 - Maven publications
 - optional signing
-- optional publish targets for Maven Central (OSSRH) and GitHub Packages
+- Maven Central publication via the Central Portal
+- optional publish target for GitHub Packages
 
-Coordinates and POM metadata are controlled through `gradle.properties`.
+Coordinates and POM metadata are controlled through `gradle.properties` and module-level `mavenPublishing { coordinates(...) }` blocks.
+
+For Maven Central + signing credentials, set:
+
+- `mavenCentralUsername`
+- `mavenCentralPassword`
+- `signingInMemoryKey`
+- `signingInMemoryKeyPassword`
 
 ### Local publish
 
 - `./gradlew publishToMavenLocal`
+- `./gradlew :app:publishToMavenLocal`
+- `./gradlew :utils:publishToMavenLocal`
 
 ### Publish to configured remotes
 
 - `./gradlew publish`
+- `./gradlew :app:publish`
+- `./gradlew :utils:publish`
 
 If remote credentials/signing keys are missing, only local publication is expected to work.
 

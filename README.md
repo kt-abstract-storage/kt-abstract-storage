@@ -33,12 +33,34 @@ The shared convention configures (via `com.vanniktech.maven.publish`):
 
 Coordinates and POM metadata are controlled through `gradle.properties` and module-level `mavenPublishing { coordinates(...) }` blocks.
 
+The publishable library module is `:app` (`kt-abstract-storage-core`).
+
 For Maven Central + signing credentials, set:
 
 - `mavenCentralUsername`
 - `mavenCentralPassword`
 - `signingInMemoryKey`
 - `signingInMemoryKeyPassword`
+
+### GitHub Actions publish
+
+Publishing automation is defined in `.github/workflows/publish.yml`.
+
+- Triggers: manual dispatch (`workflow_dispatch`) and git tags matching `v*` (for example `v0.2.0`).
+- Publish command: `./gradlew publish --stacktrace`.
+- The workflow maps GitHub secrets to Gradle properties through `ORG_GRADLE_PROJECT_*` environment variables.
+
+Required repository secrets:
+
+- `MAVEN_CENTRAL_USERNAME` -> `mavenCentralUsername`
+- `MAVEN_CENTRAL_PASSWORD` -> `mavenCentralPassword`
+- `SIGNING_IN_MEMORY_KEY` -> `signingInMemoryKey`
+- `SIGNING_IN_MEMORY_KEY_PASSWORD` -> `signingInMemoryKeyPassword`
+
+Notes:
+
+- Release versions (non-`SNAPSHOT`) publish to Maven Central.
+- Signing is enabled for non-`SNAPSHOT` versions when signing credentials are present.
 
 ### Local publish
 

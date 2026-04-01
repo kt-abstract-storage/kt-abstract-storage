@@ -45,6 +45,9 @@ import java.nio.file.Path
 class AndroidFolder internal constructor(
     internal val file: File,
     private val skipValidation: Boolean = false,
+    // Stored as Any? so the field type in bytecode is Object, avoiding java.nio.file.Path
+    // class-resolution on API < 26 even though the field may hold a Path at runtime.
+    private val cachedNioPath: Any? = null,
 ) : CreateRenamedCopyOf,
     MoveRenamedFrom,
     GetRoot,
@@ -65,7 +68,7 @@ class AndroidFolder internal constructor(
      * @throws IllegalArgumentException if the path does not exist or is not a directory.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    constructor(path: Path) : this(path.toFile())
+    constructor(path: Path) : this(path.toFile(), cachedNioPath = path)
 
     init {
         if (!skipValidation) {
@@ -81,11 +84,14 @@ class AndroidFolder internal constructor(
     /**
      * Returns this folder's path as a [java.nio.file.Path].
      *
+     * When this instance was constructed from a [Path], that path is returned directly.
+     * Otherwise the path is derived from [file] on each call (cheap string-wrap operation).
+     *
      * Requires API 26+ because [java.nio.file] is not available on earlier Android versions.
      */
     @get:RequiresApi(Build.VERSION_CODES.O)
     val nioPath: Path
-        get() = file.toPath()
+        get() = cachedNioPath as? Path ?: file.toPath()
 
     override suspend fun getParentAsync(): Folder? =
         withContext(Dispatchers.IO) { file.parentFile?.let { createUnvalidated(it) } }
@@ -243,6 +249,13 @@ class AndroidFolder internal constructor(
     }
 
     override suspend fun getRootAsync(): Folder? = withContext(Dispatchers.IO) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val rootPath = nioPath.toAbsolutePath().normalize().root
+            if (rootPath != null) {
+                return@withContext createUnvalidated(rootPath.toFile())
+            }
+        }
+
         var current: File = file.canonicalFile
         while (current.parentFile != null) {
             current = current.parentFile!!
@@ -351,7 +364,7 @@ class AndroidFolder internal constructor(
         fun createUnvalidated(file: File) = AndroidFolder(file, skipValidation = true)
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun createUnvalidated(path: Path) = AndroidFolder(path.toFile(), skipValidation = true)
+        fun createUnvalidated(path: Path) = AndroidFolder(path.toFile(), skipValidation = true, cachedNioPath = path)
     }
 }
 

@@ -23,9 +23,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.nio.file.FileAlreadyExistsException
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption.ATOMIC_MOVE
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.StandardOpenOption.CREATE
 import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
@@ -85,7 +87,7 @@ class NioFolder(
                     }
 
                     if (matchesType) {
-                        collected += child
+                        collected.add(child)
                     }
                 }
 
@@ -249,14 +251,15 @@ class NioFolder(
         val destinationPath = normalizedPath.resolve(newName)
 
         when {
-            Files.notExists(destinationPath) -> Files.move(sourcePath, destinationPath)
-            Files.isRegularFile(destinationPath) && overwrite -> Files.move(sourcePath, destinationPath, REPLACE_EXISTING)
-            Files.isRegularFile(destinationPath) -> return NioFile.createUnvalidated(destinationPath)
+            Files.isRegularFile(destinationPath) && !overwrite -> return NioFile.createUnvalidated(destinationPath)
             !overwrite -> throw FileAlreadyExistsException(destinationPath.toString())
-            else -> {
-                deleteRecursively(destinationPath)
-                Files.move(sourcePath, destinationPath)
-            }
+            Files.exists(destinationPath) -> deleteRecursively(destinationPath)
+        }
+
+        try {
+            Files.move(sourcePath, destinationPath, ATOMIC_MOVE, REPLACE_EXISTING)
+        } catch (_: AtomicMoveNotSupportedException) {
+            Files.move(sourcePath, destinationPath, REPLACE_EXISTING)
         }
 
         return NioFile.createUnvalidated(destinationPath)
@@ -266,15 +269,12 @@ class NioFolder(
         val destinationPath = normalizedPath.resolve(newName)
 
         when {
-            Files.notExists(destinationPath) -> Files.copy(sourcePath, destinationPath)
-            Files.isRegularFile(destinationPath) && overwrite -> Files.copy(sourcePath, destinationPath, REPLACE_EXISTING)
-            Files.isRegularFile(destinationPath) -> return NioFile.createUnvalidated(destinationPath)
+            Files.isRegularFile(destinationPath) && !overwrite -> return NioFile.createUnvalidated(destinationPath)
             !overwrite -> throw FileAlreadyExistsException(destinationPath.toString())
-            else -> {
-                deleteRecursively(destinationPath)
-                Files.copy(sourcePath, destinationPath)
-            }
+            Files.exists(destinationPath) -> deleteRecursively(destinationPath)
         }
+
+        Files.copy(sourcePath, destinationPath, REPLACE_EXISTING)
 
         return NioFile.createUnvalidated(destinationPath)
     }

@@ -23,9 +23,12 @@ import java.nio.file.Path
  * @param file The file represented by this instance.
  * @throws IllegalArgumentException if [file] does not exist or is not a regular file.
  */
-class AndroidFile internal constructor(
+open class AndroidFile internal constructor(
     internal val file: File,
     private val skipValidation: Boolean = false,
+    // Stored as Any? so the field type in bytecode is Object, avoiding java.nio.file.Path
+    // class-resolution on API < 26 even though the field may hold a Path at runtime.
+    private val cachedNioPath: Any? = null,
 ) : GetRoot, ChildFile {
 
     /**
@@ -35,11 +38,14 @@ class AndroidFile internal constructor(
      * compatible with API 21+. This constructor itself requires API 26 because
      * [java.nio.file] was not available on Android before that.
      *
+     * The supplied [path] is retained and returned directly by [nioPath], avoiding
+     * a redundant [java.io.File.toPath] round-trip.
+     *
      * @param path The NIO path representing the file.
      * @throws IllegalArgumentException if the path does not exist or is not a regular file.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    constructor(path: Path) : this(path.toFile())
+    constructor(path: Path) : this(path.toFile(), cachedNioPath = path)
 
     init {
         if (!skipValidation) {
@@ -55,19 +61,32 @@ class AndroidFile internal constructor(
     /**
      * Returns this file's path as a [java.nio.file.Path].
      *
+     * When this instance was constructed from a [Path], that path is returned directly.
+     * Otherwise, the path is derived from [file] on each call (cheap string-wrap operation).
+     *
      * Requires API 26+ because [java.nio.file] is not available on earlier Android versions.
      */
     @get:RequiresApi(Build.VERSION_CODES.O)
     val nioPath: Path
-        get() = file.toPath()
+        get() = cachedNioPath as? Path ?: file.toPath()
 
     override suspend fun getParentAsync(): Folder? =
         withContext(Dispatchers.IO) { file.parentFile?.let { AndroidFolder.createUnvalidated(it) } }
 
+    protected open fun createStream(accessMode: FileAccessMode): UnifiedStream =
+        FileStream(file, accessMode)
+
     override suspend fun openStreamAsync(accessMode: FileAccessMode): UnifiedStream =
-        withContext(Dispatchers.IO) { FileStream(file, accessMode) }
+        withContext(Dispatchers.IO) { createStream(accessMode) }
 
     override suspend fun getRootAsync(): Folder? = withContext(Dispatchers.IO) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val rootPath = nioPath.toAbsolutePath().normalize().root
+            if (rootPath != null) {
+                return@withContext AndroidFolder.createUnvalidated(rootPath.toFile())
+            }
+        }
+
         var current: File = file.canonicalFile
         while (current.parentFile != null) {
             current = current.parentFile!!
@@ -79,7 +98,7 @@ class AndroidFile internal constructor(
         fun createUnvalidated(file: File) = AndroidFile(file, skipValidation = true)
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun createUnvalidated(path: Path) = AndroidFile(path.toFile(), skipValidation = true)
+        fun createUnvalidated(path: Path) = AndroidFile(path.toFile(), skipValidation = true, cachedNioPath = path)
     }
 }
 

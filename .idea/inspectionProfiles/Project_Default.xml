@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <!--
+      This is a library project. Unused-symbol warnings for public, internal, and protected
+      API are intentional (library consumers may use them). Only private declarations are
+      checked for being unused.
+    -->
+    <inspection_tool class="UnusedSymbol" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="classVisibility" value="PRIVATE" />
+      <option name="memberVisibility" value="PRIVATE" />
+      <option name="parameterVisibility" value="PRIVATE" />
+    </inspection_tool>
+  </profile>
+</component>
+

@@ -1,23 +1,89 @@
 # kt-abstract-storage
 
-This project uses [Gradle](https://gradle.org/).
-To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
-or run it directly from the terminal:
+`kt-abstract-storage` is a Kotlin/JVM library that provides abstractions and implementations for:
 
-* Run `./gradlew run` to build and run the application.
-* Run `./gradlew build` to only build the application.
-* Run `./gradlew check` to run all checks, including tests.
-* Run `./gradlew clean` to clean all build outputs.
+- file and folder storage interfaces
+- in-memory and system-backed storage
+- stream adapters and wrappers
+- ZIP archive-backed virtual folders/files
 
-Note the usage of the Gradle Wrapper (`./gradlew`).
-This is the suggested way to use Gradle in production projects.
+## Modules
 
-[Learn more about the Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+- `:commonLib` - multiplatform core abstractions (`kt-abstract-storage-core`)
+- `:storage-jvm-core` - Android-safe JVM implementations (`kt-abstract-storage-jvm-core`)
+- `:storage-jvm-nio` - desktop JVM `java.nio.file` implementations (`kt-abstract-storage-jvm-nio`)
+- `:storage-android` - Android integration scaffold (`kt-abstract-storage-android`)
+- `buildSrc` - shared Gradle convention plugin
 
-[Learn more about Gradle tasks](https://docs.gradle.org/current/userguide/command_line_interface.html#common_tasks).
+## Build and test
 
-This project follows the suggested multi-module setup and consists of the `app` and `utils` subprojects.
-The shared build logic was extracted to a convention plugin located in `buildSrc`.
+Use the Gradle wrapper from the repository root:
 
-This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies
-and both a build cache and a configuration cache (see `gradle.properties`).
+- `./gradlew build`
+- `./gradlew test`
+- `./gradlew :commonLib:jvmTest`
+- `./gradlew clean`
+
+## Publishing
+
+The shared convention configures (via `com.vanniktech.maven.publish`):
+
+- reproducible jars
+- `sourcesJar` and `javadocJar`
+- Maven publications
+- optional signing
+- Maven Central publication via the Central Portal
+
+Coordinates and POM metadata are controlled through `gradle.properties` and module-level `mavenPublishing { coordinates(...) }` blocks.
+
+Publishable artifacts are produced from `:commonLib`, `:storage-jvm-core`, `:storage-jvm-nio`, and `:storage-android`.
+
+For Maven Central + signing credentials, set:
+
+- `mavenCentralUsername`
+- `mavenCentralPassword`
+- `signingInMemoryKey`
+- `signingInMemoryKeyPassword`
+
+### GitHub Actions publish
+
+Publishing automation is defined in `.github/workflows/publish.yml`.
+
+- Triggers: manual dispatch (`workflow_dispatch`) and git tags matching `v*` (for example `v0.2.0`).
+- Publish command: `./gradlew publish --stacktrace`.
+- The workflow maps GitHub secrets to Gradle properties through `ORG_GRADLE_PROJECT_*` environment variables.
+
+Required repository secrets:
+
+- `MAVEN_CENTRAL_USERNAME` -> `mavenCentralUsername`
+- `MAVEN_CENTRAL_PASSWORD` -> `mavenCentralPassword`
+- `SIGNING_IN_MEMORY_KEY` -> `signingInMemoryKey`
+- `SIGNING_IN_MEMORY_KEY_PASSWORD` -> `signingInMemoryKeyPassword`
+
+Notes:
+
+- `SNAPSHOT` versions publish to Sonatype snapshot repositories.
+- Release versions (non-`SNAPSHOT`) publish to Maven Central.
+- Signing is enabled for non-`SNAPSHOT` versions when signing credentials are present.
+
+### Local publish
+
+- `./gradlew publishToMavenLocal`
+- `./gradlew :commonLib:publishToMavenLocal`
+- `./gradlew :storage-jvm-core:publishToMavenLocal`
+- `./gradlew :storage-jvm-nio:publishToMavenLocal`
+- `./gradlew :storage-android:publishToMavenLocal`
+
+### Publish to configured remotes
+
+- `./gradlew publish`
+- `./gradlew :commonLib:publish`
+- `./gradlew :storage-jvm-core:publish`
+- `./gradlew :storage-jvm-nio:publish`
+- `./gradlew :storage-android:publish`
+
+If remote credentials/signing keys are missing, only local publication is expected to work.
+
+## Upstream parity tests
+
+The test suite includes Kotlin/JUnit ports derived from `OwlCore.Storage.Tests` (excluding HTTP-specific tests).

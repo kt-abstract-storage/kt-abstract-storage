@@ -16,13 +16,15 @@
           </compositeBuild>
         </compositeConfiguration>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/buildSrc" />
-            <option value="$PROJECT_DIR$/utils" />
+            <option value="$PROJECT_DIR$/commonLib" />
+            <option value="$PROJECT_DIR$/storage-android" />
+            <option value="$PROJECT_DIR$/storage-jvm-core" />
+            <option value="$PROJECT_DIR$/storage-jvm-nio" />
+            <option value="$PROJECT_DIR$/storage-kotlinx-io-files" />
           </set>
         </option>
       </GradleProjectSettings>

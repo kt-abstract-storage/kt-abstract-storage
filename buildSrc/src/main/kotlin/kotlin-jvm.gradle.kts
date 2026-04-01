@@ -46,9 +46,7 @@ mavenPublishing {
     }
 
     val signingKey = providers.gradleProperty("signingInMemoryKey").orNull
-        ?: providers.gradleProperty("SIGNING_KEY").orNull
     val signingPassword = providers.gradleProperty("signingInMemoryKeyPassword").orNull
-        ?: providers.gradleProperty("SIGNING_PASSWORD").orNull
 
     if (!isSnapshot && !signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
         signAllPublications()
@@ -57,7 +55,7 @@ mavenPublishing {
     pom {
         name.set(providers.gradleProperty("POM_NAME").orElse(project.name))
         description.set(providers.gradleProperty("POM_DESCRIPTION").orElse(project.description ?: project.name))
-        url.set(providers.gradleProperty("POM_URL").orElse("https://github.com/itswin11/kt-abstract-storage"))
+        url.set(providers.gradleProperty("POM_URL").orElse("https://github.com/kt-abstract-storage/kt-abstract-storage"))
 
         licenses {
             license {
@@ -68,36 +66,22 @@ mavenPublishing {
 
         developers {
             developer {
-                id.set(providers.gradleProperty("POM_DEVELOPER_ID").orElse("itswin11"))
+                id.set(providers.gradleProperty("POM_DEVELOPER_ID").orElse("itsWindows11"))
                 name.set(providers.gradleProperty("POM_DEVELOPER_NAME").orElse("kt-abstract-storage contributors"))
                 email.set(providers.gradleProperty("POM_DEVELOPER_EMAIL").orElse("opensource@example.com"))
             }
         }
 
         scm {
-            url.set(providers.gradleProperty("POM_SCM_URL").orElse("https://github.com/itswin11/kt-abstract-storage"))
-            connection.set(providers.gradleProperty("POM_SCM_CONNECTION").orElse("scm:git:https://github.com/itswin11/kt-abstract-storage.git"))
-            developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION").orElse("scm:git:ssh://git@github.com/itswin11/kt-abstract-storage.git"))
+            url.set(providers.gradleProperty("POM_SCM_URL").orElse("https://github.com/kt-abstract-storage/kt-abstract-storage"))
+            connection.set(providers.gradleProperty("POM_SCM_CONNECTION").orElse("scm:git:https://github.com/kt-abstract-storage/kt-abstract-storage.git"))
+            developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION").orElse("scm:git:ssh://git@github.com/kt-abstract-storage/kt-abstract-storage.git"))
         }
     }
 }
 
 extensions.configure<PublishingExtension> {
-
     repositories {
         mavenLocal()
-
-
-        val githubRepo = providers.gradleProperty("GITHUB_PACKAGES_REPOSITORY").orNull
-        if (!githubRepo.isNullOrBlank()) {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/$githubRepo")
-                credentials {
-                    username = providers.gradleProperty("GITHUB_ACTOR").orNull ?: System.getenv("GITHUB_ACTOR")
-                    password = providers.gradleProperty("GITHUB_TOKEN").orNull ?: System.getenv("GITHUB_TOKEN")
-                }
-            }
-        }
     }
 }

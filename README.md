@@ -10,7 +10,6 @@
 ## Modules
 
 - `:app` - publishable core library (`kt-abstract-storage-core`)
-- `:utils` - utility module (`kt-abstract-storage-utils`)
 - `buildSrc` - shared Gradle convention plugin
 
 ## Build and test
@@ -31,7 +30,6 @@ The shared convention configures (via `com.vanniktech.maven.publish`):
 - Maven publications
 - optional signing
 - Maven Central publication via the Central Portal
-- optional publish target for GitHub Packages
 
 Coordinates and POM metadata are controlled through `gradle.properties` and module-level `mavenPublishing { coordinates(...) }` blocks.
 
@@ -46,13 +44,11 @@ For Maven Central + signing credentials, set:
 
 - `./gradlew publishToMavenLocal`
 - `./gradlew :app:publishToMavenLocal`
-- `./gradlew :utils:publishToMavenLocal`
 
 ### Publish to configured remotes
 
 - `./gradlew publish`
 - `./gradlew :app:publish`
-- `./gradlew :utils:publish`
 
 If remote credentials/signing keys are missing, only local publication is expected to work.
 

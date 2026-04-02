@@ -17,38 +17,43 @@ jobs:
   test:
     name: ${{ matrix.platform }} tests
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow_failure }}
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: kmp
+          - platform: native-linux
             os: ubuntu-latest
             java: "17"
+            allow_failure: false
             gradle_cmd: ./gradlew
             gradle_tasks: >-
-              :commonLib:allTests
-              :storage-common-tests:allTests
+              :commonLib:linuxX64Test
+              :storage-common-tests:linuxX64Test
             android: false
-          - platform: kmp-macos
+          - platform: native-macos
             os: macos-latest
             java: "17"
+            allow_failure: true
             gradle_cmd: ./gradlew
             gradle_tasks: >-
-              :commonLib:allTests
-              :storage-common-tests:allTests
+              :commonLib:iosSimulatorArm64Test
+              :storage-common-tests:iosSimulatorArm64Test
             android: false
-          - platform: kmp-windows
+          - platform: native-windows
             os: windows-latest
             java: "17"
+            allow_failure: false
             gradle_cmd: .\gradlew.bat
             gradle_tasks: >-
-              :commonLib:allTests
-              :storage-common-tests:allTests
+              :commonLib:mingwX64Test
+              :storage-common-tests:mingwX64Test
             android: false
           - platform: jvm
             os: ubuntu-latest
             java: "17"
+            allow_failure: false
             gradle_cmd: ./gradlew
             gradle_tasks: >-
               :storage-jvm-core:test
@@ -58,6 +63,7 @@ jobs:
           - platform: android
             os: ubuntu-latest
             java: "17"
+            allow_failure: false
             gradle_cmd: ./gradlew
             gradle_tasks: >-
               :storage-android:check

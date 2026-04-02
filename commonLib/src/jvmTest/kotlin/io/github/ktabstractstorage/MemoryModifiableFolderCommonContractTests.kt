@@ -5,7 +5,6 @@ import io.github.ktabstractstorage.testing.JvmCommonModifiableFolderTests
 
 class MemoryModifiableFolderCommonContractTests : JvmCommonModifiableFolderTests() {
 
-
     override suspend fun createModifiableFolderFixtureAsync(): ModifiableFolderFixture =
         ModifiableFolderFixture(MemoryFolder("root"))
 

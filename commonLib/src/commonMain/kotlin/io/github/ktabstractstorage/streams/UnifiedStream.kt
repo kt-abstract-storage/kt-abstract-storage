@@ -93,12 +93,12 @@ abstract class UnifiedStream : AutoCloseable {
      * @param count Maximum number of bytes to read.
      *
      * **Default implementation remarks:**
-     * - Delegates to [read] inside `withContext(Dispatchers.IO)`.
+     * - Delegates to [read] inside `withContext(Dispatchers.Default)`.
      * - This fallback executes blocking I/O on the I/O dispatcher.
      * - Override when a backend provides true non-blocking/native async reads.
      */
     open suspend fun readAsync(buffer: ByteArray, offset: Int, count: Int): Int =
-        withContext(Dispatchers.IO) { read(buffer, offset, count) }
+        withContext(Dispatchers.Default) { read(buffer, offset, count) }
 
     /**
      * Asynchronously writes [count] bytes from [buffer], starting at [offset].
@@ -108,12 +108,12 @@ abstract class UnifiedStream : AutoCloseable {
      * @param count Number of bytes to write.
      *
      * **Default implementation remarks:**
-     * - Delegates to [write] inside `withContext(Dispatchers.IO)`.
+     * - Delegates to [write] inside `withContext(Dispatchers.Default)`.
      * - This fallback executes blocking I/O on the I/O dispatcher.
      * - Override when a backend provides true non-blocking/native async writes.
      */
     open suspend fun writeAsync(buffer: ByteArray, offset: Int, count: Int) =
-        withContext(Dispatchers.IO) { write(buffer, offset, count) }
+        withContext(Dispatchers.Default) { write(buffer, offset, count) }
 
     /**
      * Asynchronously changes the stream position using [offset].
@@ -121,19 +121,19 @@ abstract class UnifiedStream : AutoCloseable {
      * @param offset Target position argument accepted by the implementation.
      *
      * **Default implementation remarks:**
-     * - Delegates to [seek] inside `withContext(Dispatchers.IO)`.
+     * - Delegates to [seek] inside `withContext(Dispatchers.Default)`.
      * - Override when a backend provides a native async seek operation.
      */
     open suspend fun seekAsync(offset: Long) =
-        withContext(Dispatchers.IO) { seek(offset) }
+        withContext(Dispatchers.Default) { seek(offset) }
 
     /**
      * Asynchronously flushes buffered data.
      *
      * **Default implementation remarks:**
-     * - Delegates to [flush] inside `withContext(Dispatchers.IO)`.
+     * - Delegates to [flush] inside `withContext(Dispatchers.Default)`.
      * - Override when a backend provides a native async flush operation.
      */
     open suspend fun flushAsync() =
-        withContext(Dispatchers.IO) { flush() }
+        withContext(Dispatchers.Default) { flush() }
 }

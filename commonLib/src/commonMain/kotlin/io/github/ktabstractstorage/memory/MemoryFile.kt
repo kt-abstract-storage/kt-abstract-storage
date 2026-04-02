@@ -6,6 +6,8 @@ import io.github.ktabstractstorage.Folder
 import io.github.ktabstractstorage.enums.FileAccessMode
 import io.github.ktabstractstorage.errors.StorageIOException
 import io.github.ktabstractstorage.streams.UnifiedStream
+import kotlin.concurrent.locks.ReentrantLock
+import kotlin.concurrent.locks.withLock
 import kotlin.math.min
 
 /**
@@ -28,6 +30,7 @@ class MemoryFile internal constructor(
     internal constructor(name: String) : this(name, parentFolder = null, id = name.hashCode().toString())
 
     private var content: ByteArray = ByteArray(0)
+    private val lock = ReentrantLock()
 
     override suspend fun getParentAsync(): Folder? = parentFolder
 
@@ -39,7 +42,7 @@ class MemoryFile internal constructor(
     }
 
     internal fun clearContent() {
-        synchronized(this) {
+        lock.withLock {
             content = ByteArray(0)
         }
     }
@@ -56,7 +59,7 @@ class MemoryFile internal constructor(
         override val canSeek: Boolean = true
 
         override val length: Long
-            get() = synchronized(file) {
+            get() = file.lock.withLock {
                 ensureOpen()
                 file.content.size.toLong()
             }
@@ -71,11 +74,11 @@ class MemoryFile internal constructor(
                 cursor = value.coerceIn(0, length)
             }
 
-        override fun read(buffer: ByteArray, offset: Int, count: Int): Int = synchronized(file) {
+        override fun read(buffer: ByteArray, offset: Int, count: Int): Int = file.lock.withLock {
             ensureOpen()
             ensureReadable()
 
-            if (cursor >= file.content.size) return@synchronized 0
+            if (cursor >= file.content.size) return@withLock 0
 
             val startIndex = cursor.toInt()
             val toRead = min(count, file.content.size - startIndex)
@@ -84,7 +87,7 @@ class MemoryFile internal constructor(
             toRead
         }
 
-        override fun write(buffer: ByteArray, offset: Int, count: Int) = synchronized(file) {
+        override fun write(buffer: ByteArray, offset: Int, count: Int) = file.lock.withLock {
             ensureOpen()
             ensureWritable()
 

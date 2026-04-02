@@ -31,5 +31,5 @@ interface FolderWatcher : AutoCloseable {
     /**
      * Asynchronously closes this watcher.
      */
-    suspend fun closeAsync() = withContext(Dispatchers.IO) { close() }
+    suspend fun closeAsync() = withContext(Dispatchers.Default) { close() }
 }

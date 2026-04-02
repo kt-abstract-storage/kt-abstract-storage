@@ -11,6 +11,8 @@ import io.github.ktabstractstorage.extensions.interfaces.CreateRenamedCopyOf
 import io.github.ktabstractstorage.extensions.interfaces.MoveFrom
 import io.github.ktabstractstorage.extensions.interfaces.MoveRenamedFrom
 
+private const val DEFAULT_BUFFER_SIZE = 8192
+
 /**
  * Creates a copy of [fileToCopy] within this folder.
  *

@@ -12,6 +12,8 @@ import io.github.ktabstractstorage.errors.StorageFileAlreadyExistsException
 import io.github.ktabstractstorage.errors.StorageFileNotFoundException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.concurrent.locks.ReentrantLock
+import kotlin.concurrent.locks.withLock
 import kotlin.random.Random
 
 /**
@@ -28,6 +30,7 @@ class MemoryFolder(
 ) : ModifiableFolder, ChildFolder {
     private val children = linkedMapOf<String, StorableChild>()
     private var watcher: MemoryFolderWatcher? = null
+    private val lock = ReentrantLock()
 
     override suspend fun getParentAsync(): Folder? = parentFolder
 
@@ -38,7 +41,7 @@ class MemoryFolder(
         snapshotChildren(type).forEach { emit(it) }
     }
 
-    override suspend fun getFolderWatcherAsync(): MemoryFolderWatcher = synchronized(this) {
+    override suspend fun getFolderWatcherAsync(): MemoryFolderWatcher = lock.withLock {
         if (watcher == null) {
             watcher = MemoryFolderWatcher(this)
         }
@@ -46,7 +49,7 @@ class MemoryFolder(
     }
 
     override suspend fun deleteAsync(item: StorableChild) {
-        val removed = synchronized(this) {
+        val removed = lock.withLock {
             val entry = children.entries.firstOrNull { it.value.id == item.id }
                 ?: throw StorageFileNotFoundException("Item ${item.name} was not found in folder $name")
             children.remove(entry.key)!!.also { detachChild(it) }
@@ -56,7 +59,7 @@ class MemoryFolder(
     }
 
     override suspend fun createFolderAsync(name: String, overwrite: Boolean): ChildFolder {
-        val result = synchronized(this) {
+        val result = lock.withLock {
             when (val existing = children[name]) {
                 null -> {
                     val folder = MemoryFolder(name, this)
@@ -92,7 +95,7 @@ class MemoryFolder(
     }
 
     override suspend fun createFileAsync(name: String, overwrite: Boolean): ChildFile {
-        val result = synchronized(this) {
+        val result = lock.withLock {
             when (val existing = children[name]) {
                 null -> {
                     val file = MemoryFile(name, this)
@@ -134,13 +137,13 @@ class MemoryFolder(
         return result.child as ChildFile
     }
 
-    internal fun unregisterWatcher(watcher: MemoryFolderWatcher) = synchronized(this) {
+    internal fun unregisterWatcher(watcher: MemoryFolderWatcher) = lock.withLock {
         if (this.watcher === watcher) {
             this.watcher = null
         }
     }
 
-    private fun snapshotChildren(type: StorableType): List<StorableChild> = synchronized(this) {
+    private fun snapshotChildren(type: StorableType): List<StorableChild> = lock.withLock {
         require(type != StorableType.NONE) {
             "StorableType.NONE is invalid when enumerating folder contents."
         }
@@ -156,7 +159,7 @@ class MemoryFolder(
     }
 
     private fun notifyWatchers(change: FolderChange) {
-        synchronized(this) {
+        lock.withLock {
             watcher
         }?.emit(change)
     }

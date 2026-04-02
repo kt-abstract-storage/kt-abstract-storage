@@ -25,6 +25,12 @@ class CreateRelativeStorageExtensionsTests {
         return root
     }
 
+    private suspend fun assertParentName(item: StorableChild, expectedParentName: String) {
+        val parent = item.getParentAsync()
+        assertNotNull(parent)
+        assertEquals(expectedParentName, parent.name)
+    }
+
     @Test
     fun create_relative_folder_from_folder() = runTest {
         val root = createRoot()
@@ -32,9 +38,7 @@ class CreateRelativeStorageExtensionsTests {
         val final = root.createFolderByRelativePathAsync("folderA/subB")
 
         assertEquals("subB", final.name)
-        val parent = final.getParentAsync()
-        assertNotNull(parent)
-        assertEquals("folderA", parent.name)
+        assertParentName(final, "folderA")
     }
 
     @Test
@@ -54,9 +58,7 @@ class CreateRelativeStorageExtensionsTests {
         val final = file.createFolderByRelativePathAsync("../created/chain")
 
         assertEquals("chain", final.name)
-        val parent = final.getParentAsync()
-        assertNotNull(parent)
-        assertEquals("created", parent.name)
+        assertParentName(final, "created")
     }
 
     @Test
@@ -66,9 +68,7 @@ class CreateRelativeStorageExtensionsTests {
         val file = root.createFileByRelativePathAsync("nested/path/newfile.txt")
 
         assertEquals("newfile.txt", file.name)
-        val parent = file.getParentAsync()
-        assertNotNull(parent)
-        assertEquals("path", parent.name)
+        assertParentName(file, "path")
     }
 
     @Test

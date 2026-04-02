@@ -37,6 +37,7 @@ plugins {
 // If there are changes in only one of the projects, Gradle will rebuild only the one that has changed.
 // Learn more about structuring projects with Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html
 include(":commonLib")
+include(":storage-common-tests")
 include(":storage-jvm-core")
 include(":storage-jvm-nio")
 include(":storage-kotlinx-io-files")

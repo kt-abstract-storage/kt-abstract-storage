@@ -8,6 +8,11 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
 class RecursiveFolderTraversalTests {
+    private suspend fun assertTraversalOrder(folder: Folder, expectedNames: List<String>) {
+        val names = folder.getItemsAsync(StorableType.ALL).toList().map { it.name }
+        assertContentEquals(expectedNames, names)
+    }
+
     private suspend fun buildBreadthSampleTree(): MemoryFolder {
         val root = MemoryFolder("root")
 
@@ -47,11 +52,9 @@ class RecursiveFolderTraversalTests {
         val root = buildBreadthSampleTree()
         val bfs = BreadthFirstRecursiveFolder(root)
 
-        val names = bfs.getItemsAsync(StorableType.ALL).toList().map { it.name }
-
-        assertContentEquals(
+        assertTraversalOrder(
+            bfs,
             listOf("root-file", "A", "B", "A1", "AA", "AB", "B1", "AA1"),
-            names,
         )
     }
 
@@ -60,9 +63,7 @@ class RecursiveFolderTraversalTests {
         val root = buildBreadthSampleTree()
         val bfs = BreadthFirstRecursiveFolder(root, maxDepth = 1)
 
-        val names = bfs.getItemsAsync(StorableType.ALL).toList().map { it.name }
-
-        assertContentEquals(listOf("root-file", "A", "B"), names)
+        assertTraversalOrder(bfs, listOf("root-file", "A", "B"))
     }
 
     @Test
@@ -70,11 +71,9 @@ class RecursiveFolderTraversalTests {
         val root = buildDepthSampleTree()
         val dfs = DepthFirstRecursiveFolder(root)
 
-        val names = dfs.getItemsAsync(StorableType.ALL).toList().map { it.name }
-
-        assertContentEquals(
+        assertTraversalOrder(
+            dfs,
             listOf("root-file", "A", "A1", "AA", "AA1", "AB", "B", "B1"),
-            names,
         )
     }
 
@@ -83,11 +82,9 @@ class RecursiveFolderTraversalTests {
         val root = buildDepthSampleTree()
         val dfs = DepthFirstRecursiveFolder(root, maxDepth = 2)
 
-        val names = dfs.getItemsAsync(StorableType.ALL).toList().map { it.name }
-
-        assertContentEquals(
+        assertTraversalOrder(
+            dfs,
             listOf("root-file", "A", "A1", "AA", "AB", "B", "B1"),
-            names,
         )
     }
 }

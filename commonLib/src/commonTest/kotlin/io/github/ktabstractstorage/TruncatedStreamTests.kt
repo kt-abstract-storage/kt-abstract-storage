@@ -9,14 +9,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class TruncatedStreamTests {
-    @Test
-    fun read_respects_max_length_and_stops() {
-        val data = ByteArray(100) { it.toByte() }
+    private fun createTruncatedStream(totalBytes: Int, maxLength: Long): Pair<ByteArray, io.github.ktabstractstorage.streams.UnifiedStream> {
+        val data = ByteArray(totalBytes) { it.toByte() }
         val source = MemoryStream()
         source.write(data, 0, data.size)
         source.seek(0)
+        return data to source.truncated(maxLength)
+    }
 
-        val truncated = source.truncated(50)
+    @Test
+    fun read_respects_max_length_and_stops() {
+        val (data, truncated) = createTruncatedStream(totalBytes = 100, maxLength = 50)
         val buffer = ByteArray(100)
 
         val read1 = truncated.read(buffer, 0, buffer.size)
@@ -29,12 +32,7 @@ class TruncatedStreamTests {
 
     @Test
     fun seek_to_beginning_resets_read_window_for_seekable_stream() {
-        val data = ByteArray(100) { it.toByte() }
-        val source = MemoryStream()
-        source.write(data, 0, data.size)
-        source.seek(0)
-
-        val truncated = source.truncated(50)
+        val (data, truncated) = createTruncatedStream(totalBytes = 100, maxLength = 50)
         val buffer = ByteArray(100)
 
         val firstRead = truncated.read(buffer, 0, 10)

@@ -6,8 +6,6 @@ import io.github.ktabstractstorage.MutableFolder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlin.concurrent.locks.ReentrantLock
-import kotlin.concurrent.locks.withLock
 
 /**
  * Watches a [MemoryFolder] for changes.
@@ -18,7 +16,6 @@ class MemoryFolderWatcher internal constructor(
     private val watchedFolder: MemoryFolder,
 ) : FolderWatcher {
     private var isClosed = false
-    private val lock = ReentrantLock()
     private val mutableChanges = MutableSharedFlow<FolderChange>(extraBufferCapacity = 32)
 
     override val folder: MutableFolder
@@ -33,12 +30,8 @@ class MemoryFolderWatcher internal constructor(
     }
 
     override fun close() {
-        lock.withLock {
-            if (isClosed) {
-                return
-            }
-            isClosed = true
-        }
+        if (isClosed) return
+        isClosed = true
         watchedFolder.unregisterWatcher(this)
     }
 }

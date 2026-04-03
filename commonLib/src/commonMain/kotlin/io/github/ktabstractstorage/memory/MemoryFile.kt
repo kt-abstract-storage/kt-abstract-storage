@@ -6,9 +6,9 @@ import io.github.ktabstractstorage.Folder
 import io.github.ktabstractstorage.enums.FileAccessMode
 import io.github.ktabstractstorage.errors.StorageIOException
 import io.github.ktabstractstorage.streams.UnifiedStream
-import kotlin.concurrent.locks.ReentrantLock
-import kotlin.concurrent.locks.withLock
 import kotlin.math.min
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * An in-memory implementation of [File].
@@ -30,7 +30,7 @@ class MemoryFile internal constructor(
     internal constructor(name: String) : this(name, parentFolder = null, id = name.hashCode().toString())
 
     private var content: ByteArray = ByteArray(0)
-    private val lock = ReentrantLock()
+    private val mutex = Mutex()
 
     override suspend fun getParentAsync(): Folder? = parentFolder
 
@@ -41,10 +41,8 @@ class MemoryFile internal constructor(
         parentFolder = null
     }
 
-    internal fun clearContent() {
-        lock.withLock {
-            content = ByteArray(0)
-        }
+    internal suspend fun clearContent() = mutex.withLock {
+        content = ByteArray(0)
     }
 
     private class MemoryFileStream(
@@ -59,9 +57,9 @@ class MemoryFile internal constructor(
         override val canSeek: Boolean = true
 
         override val length: Long
-            get() = file.lock.withLock {
+            get() {
                 ensureOpen()
-                file.content.size.toLong()
+                return file.content.size.toLong()
             }
 
         override var position: Long
@@ -74,20 +72,20 @@ class MemoryFile internal constructor(
                 cursor = value.coerceIn(0, length)
             }
 
-        override fun read(buffer: ByteArray, offset: Int, count: Int): Int = file.lock.withLock {
+        override fun read(buffer: ByteArray, offset: Int, count: Int): Int {
             ensureOpen()
             ensureReadable()
 
-            if (cursor >= file.content.size) return@withLock 0
+            if (cursor >= file.content.size) return 0
 
             val startIndex = cursor.toInt()
             val toRead = min(count, file.content.size - startIndex)
             file.content.copyInto(buffer, offset, startIndex, startIndex + toRead)
             cursor += toRead
-            toRead
+            return toRead
         }
 
-        override fun write(buffer: ByteArray, offset: Int, count: Int) = file.lock.withLock {
+        override fun write(buffer: ByteArray, offset: Int, count: Int) {
             ensureOpen()
             ensureWritable()
 
@@ -114,10 +112,10 @@ class MemoryFile internal constructor(
         }
 
         override suspend fun readAsync(buffer: ByteArray, offset: Int, count: Int): Int =
-            read(buffer, offset, count)
+            file.mutex.withLock { read(buffer, offset, count) }
 
         override suspend fun writeAsync(buffer: ByteArray, offset: Int, count: Int) =
-            write(buffer, offset, count)
+            file.mutex.withLock { write(buffer, offset, count) }
 
         override suspend fun seekAsync(offset: Long) = seek(offset)
 

@@ -56,6 +56,12 @@ class MemoryFile internal constructor(
         override val canWrite: Boolean = accessMode != FileAccessMode.READ
         override val canSeek: Boolean = true
 
+        /**
+         * Returns the current length of the file content.
+         *
+         * **Note:** This is not synchronized. For consistent results in concurrent
+         * scenarios, prefer [readAsync]/[writeAsync] which are protected by [file.mutex].
+         */
         override val length: Long
             get() {
                 ensureOpen()
@@ -72,6 +78,9 @@ class MemoryFile internal constructor(
                 cursor = value.coerceIn(0, length)
             }
 
+        /**
+         * Reads synchronously. Not mutex-protected; use [readAsync] for thread-safe access.
+         */
         override fun read(buffer: ByteArray, offset: Int, count: Int): Int {
             ensureOpen()
             ensureReadable()
@@ -85,6 +94,9 @@ class MemoryFile internal constructor(
             return toRead
         }
 
+        /**
+         * Writes synchronously. Not mutex-protected; use [writeAsync] for thread-safe access.
+         */
         override fun write(buffer: ByteArray, offset: Int, count: Int) {
             ensureOpen()
             ensureWritable()

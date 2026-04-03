@@ -1,6 +1,6 @@
 package io.github.ktabstractstorage
 
-import kotlinx.coroutines.Dispatchers
+import io.github.ktabstractstorage.internal.blockingIoDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -31,5 +31,5 @@ interface FolderWatcher : AutoCloseable {
     /**
      * Asynchronously closes this watcher.
      */
-    suspend fun closeAsync() = withContext(Dispatchers.Default) { close() }
+    suspend fun closeAsync() = withContext(blockingIoDispatcher) { close() }
 }

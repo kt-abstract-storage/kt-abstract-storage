@@ -37,6 +37,6 @@ dependencies {
 }
 
 mavenPublishing {
-    coordinates(group.toString(), "kt-abstract-storage-android", version.toString())
+    coordinates(group.toString(), "kt-abstract-storage-android")
     publishToMavenCentral()
 }

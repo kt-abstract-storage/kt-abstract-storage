@@ -35,5 +35,5 @@ kotlin {
 
 mavenPublishing {
     coordinates(group.toString(), "commonLib")
-    publishToMavenCentral()
+    publishToMavenCentral(SonatypeHost.S01)
 }

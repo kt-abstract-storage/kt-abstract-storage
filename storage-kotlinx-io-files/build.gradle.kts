@@ -28,5 +28,5 @@ dependencies {
 
 mavenPublishing {
     coordinates(group.toString(), "kt-abstract-storage-kotlinx-io-files")
-    publishToMavenCentral()
+    publishToMavenCentral(SonatypeHost.S01)
 }

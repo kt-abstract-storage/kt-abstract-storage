@@ -26,5 +26,5 @@ dependencies {
 
 mavenPublishing {
     coordinates(group.toString(), "kt-abstract-storage-jvm-core")
-    publishToMavenCentral()
+    publishToMavenCentral(SonatypeHost.S01)
 }

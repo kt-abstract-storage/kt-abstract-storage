@@ -37,6 +37,6 @@ kotlin {
 
 mavenPublishing {
     coordinates(group.toString(), "kt-abstract-storage-common-tests")
-    publishToMavenCentral()
+    publishToMavenCentral(SonatypeHost.S01)
 }
 

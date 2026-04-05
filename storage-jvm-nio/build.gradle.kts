@@ -26,5 +26,6 @@ dependencies {
 }
 
 mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
     coordinates(group.toString(), "kt-abstract-storage-jvm-nio", version.toString())
 }

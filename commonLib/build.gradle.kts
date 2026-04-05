@@ -32,3 +32,7 @@ kotlin {
         }
     }
 }
+
+mavenPublishing {
+    coordinates(group.toString(), "commonLib", version.toString())
+}

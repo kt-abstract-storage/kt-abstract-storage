@@ -37,6 +37,6 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
-    coordinates(group.toString(), "kt-abstract-storage-android", version.toString())
+    coordinates(group.toString(), "kt-abstract-storage-android")
+    publishToMavenCentral()
 }

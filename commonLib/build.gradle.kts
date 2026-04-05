@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     kotlin("multiplatform")
     id("com.vanniktech.maven.publish")
@@ -37,5 +35,5 @@ kotlin {
 
 mavenPublishing {
     coordinates(group.toString(), "commonLib")
-    publishToMavenCentral(SonatypeHost.S01)
+    publishToMavenCentral()
 }

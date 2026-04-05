@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     kotlin("jvm")
     `java-library`
@@ -28,5 +26,5 @@ dependencies {
 
 mavenPublishing {
     coordinates(group.toString(), "kt-abstract-storage-jvm-core")
-    publishToMavenCentral(SonatypeHost.S01)
+    publishToMavenCentral()
 }

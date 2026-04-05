@@ -34,6 +34,6 @@ kotlin {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
     coordinates(group.toString(), "commonLib", version.toString())
+    publishToMavenCentral()
 }

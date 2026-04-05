@@ -26,6 +26,6 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
     coordinates(group.toString(), "kt-abstract-storage-jvm-nio", version.toString())
+    publishToMavenCentral()
 }

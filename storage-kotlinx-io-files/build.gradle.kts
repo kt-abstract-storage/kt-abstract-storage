@@ -27,6 +27,6 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
     coordinates(group.toString(), "kt-abstract-storage-kotlinx-io-files", version.toString())
+    publishToMavenCentral()
 }

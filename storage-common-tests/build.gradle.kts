@@ -36,7 +36,7 @@ kotlin {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
     coordinates(group.toString(), "kt-abstract-storage-common-tests", version.toString())
+    publishToMavenCentral()
 }
 

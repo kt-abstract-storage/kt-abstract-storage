@@ -25,6 +25,6 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
     coordinates(group.toString(), "kt-abstract-storage-jvm-core", version.toString())
+    publishToMavenCentral()
 }

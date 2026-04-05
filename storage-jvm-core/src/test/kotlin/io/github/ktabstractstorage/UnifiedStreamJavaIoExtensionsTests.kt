@@ -13,6 +13,17 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class UnifiedStreamJavaIoExtensionsTests {
+    private fun assertDuplexReadWrite(stream: UnifiedStream, sourceBytes: ByteArray, expectedWrittenBytes: ByteArray) {
+        val readBack = ByteArray(sourceBytes.size)
+        val read = stream.read(readBack, 0, readBack.size)
+        stream.write(expectedWrittenBytes, 0, expectedWrittenBytes.size)
+        stream.flush()
+        stream.close()
+
+        assertEquals(sourceBytes.size, read)
+        assertContentEquals(sourceBytes, readBack)
+    }
+
     @Test
     fun input_and_output_as_unified_stream_is_duplex() {
         val inputBytes = "read-part".encodeToByteArray()
@@ -21,16 +32,8 @@ class UnifiedStreamJavaIoExtensionsTests {
 
         val stream = UnifiedStream.combineIoStreams(input, output)
 
-        val readBack = ByteArray(inputBytes.size)
-        val read = stream.read(readBack, 0, readBack.size)
-
         val writeBytes = "write-part".encodeToByteArray()
-        stream.write(writeBytes, 0, writeBytes.size)
-        stream.flush()
-        stream.close()
-
-        assertEquals(inputBytes.size, read)
-        assertContentEquals(inputBytes, readBack)
+        assertDuplexReadWrite(stream, inputBytes, writeBytes)
         assertContentEquals(writeBytes, output.toByteArray())
     }
 
@@ -79,15 +82,9 @@ class UnifiedStreamJavaIoExtensionsTests {
 
         val stream = UnifiedStream.combineIoStreams(input, output)
 
-        val readBack = ByteArray(inputBytes.size)
-        val read = stream.read(readBack, 0, readBack.size)
-        stream.write(byteArrayOf(7, 8), 0, 2)
-        stream.flush()
-        stream.close()
-
-        assertEquals(inputBytes.size, read)
-        assertContentEquals(inputBytes, readBack)
-        assertContentEquals(byteArrayOf(7, 8), output.toByteArray())
+        val writeBytes = byteArrayOf(7, 8)
+        assertDuplexReadWrite(stream, inputBytes, writeBytes)
+        assertContentEquals(writeBytes, output.toByteArray())
     }
 
     private class CloseTrackingInputStream(val delegate: InputStream) : InputStream() {

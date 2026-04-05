@@ -30,12 +30,8 @@ class MemoryFolderWatcher internal constructor(
     }
 
     override fun close() {
-        synchronized(this) {
-            if (isClosed) {
-                return
-            }
-            isClosed = true
-        }
+        if (isClosed) return
+        isClosed = true
         watchedFolder.unregisterWatcher(this)
     }
 }

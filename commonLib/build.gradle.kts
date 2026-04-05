@@ -5,6 +5,14 @@ plugins {
 
 kotlin {
     jvm()
+    js(IR) {
+        nodejs()
+    }
+    linuxX64()
+    mingwX64()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
@@ -14,6 +22,7 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinxCoroutinesTest)
+            implementation(project(":storage-common-tests"))
         }
 
         jvmTest.dependencies {

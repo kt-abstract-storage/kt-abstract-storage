@@ -13,6 +13,12 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class StreamFileTests {
+    private fun createStreamFile(shouldDispose: Boolean): Pair<MemoryStream, StreamFile> {
+        val stream = MemoryStream()
+        val file = StreamFile(stream).also { it.shouldDispose = shouldDispose }
+        return stream to file
+    }
+
     @Test
     fun should_dispose_defaults_false() {
         val file = StreamFile(MemoryStream())
@@ -21,8 +27,7 @@ class StreamFileTests {
 
     @Test
     fun open_stream_returns_underlying_stream_when_should_dispose_true() = runTest {
-        val stream = MemoryStream()
-        val file = StreamFile(stream).also { it.shouldDispose = true }
+        val (stream, file) = createStreamFile(shouldDispose = true)
 
         val opened = file.openStreamAsync(FileAccessMode.READ_AND_WRITE)
         assertSame(stream, opened)
@@ -30,8 +35,7 @@ class StreamFileTests {
 
     @Test
     fun open_stream_returns_non_disposable_wrapper_when_should_dispose_false() = runTest {
-        val stream = MemoryStream()
-        val file = StreamFile(stream).also { it.shouldDispose = false }
+        val (_, file) = createStreamFile(shouldDispose = false)
 
         val opened = file.openStreamAsync(FileAccessMode.READ_AND_WRITE)
         assertIs<NonDisposableUnifiedStreamWrapper>(opened)
@@ -39,8 +43,7 @@ class StreamFileTests {
 
     @Test
     fun multiple_opens_with_wrapper_are_distinct_instances() = runTest {
-        val stream = MemoryStream()
-        val file = StreamFile(stream).also { it.shouldDispose = false }
+        val (_, file) = createStreamFile(shouldDispose = false)
 
         val first = file.openStreamAsync(FileAccessMode.READ_AND_WRITE)
         val second = file.openStreamAsync(FileAccessMode.READ_AND_WRITE)
@@ -52,8 +55,7 @@ class StreamFileTests {
 
     @Test
     fun wrapped_close_does_not_close_underlying_stream() = runTest {
-        val stream = MemoryStream()
-        val file = StreamFile(stream).also { it.shouldDispose = false }
+        val (stream, file) = createStreamFile(shouldDispose = false)
 
         val opened = file.openStreamAsync(FileAccessMode.READ_AND_WRITE)
         opened.close()

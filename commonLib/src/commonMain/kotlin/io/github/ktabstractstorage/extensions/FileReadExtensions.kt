@@ -4,6 +4,8 @@ import io.github.ktabstractstorage.File
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+private const val DEFAULT_BUFFER_SIZE = 8192
+
 /**
  * Opens this file for reading and reads all bytes.
  *

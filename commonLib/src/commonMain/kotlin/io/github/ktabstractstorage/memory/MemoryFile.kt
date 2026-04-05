@@ -7,6 +7,8 @@ import io.github.ktabstractstorage.enums.FileAccessMode
 import io.github.ktabstractstorage.errors.StorageIOException
 import io.github.ktabstractstorage.streams.UnifiedStream
 import kotlin.math.min
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * An in-memory implementation of [File].
@@ -28,6 +30,7 @@ class MemoryFile internal constructor(
     internal constructor(name: String) : this(name, parentFolder = null, id = name.hashCode().toString())
 
     private var content: ByteArray = ByteArray(0)
+    private val mutex = Mutex()
 
     override suspend fun getParentAsync(): Folder? = parentFolder
 
@@ -38,10 +41,8 @@ class MemoryFile internal constructor(
         parentFolder = null
     }
 
-    internal fun clearContent() {
-        synchronized(this) {
-            content = ByteArray(0)
-        }
+    internal suspend fun clearContent() = mutex.withLock {
+        content = ByteArray(0)
     }
 
     private class MemoryFileStream(
@@ -55,10 +56,16 @@ class MemoryFile internal constructor(
         override val canWrite: Boolean = accessMode != FileAccessMode.READ
         override val canSeek: Boolean = true
 
+        /**
+         * Returns the current length of the file content.
+         *
+         * **Note:** This is not synchronized. For consistent results in concurrent
+         * scenarios, prefer [readAsync]/[writeAsync] which are protected by [file.mutex].
+         */
         override val length: Long
-            get() = synchronized(file) {
+            get() {
                 ensureOpen()
-                file.content.size.toLong()
+                return file.content.size.toLong()
             }
 
         override var position: Long
@@ -71,20 +78,26 @@ class MemoryFile internal constructor(
                 cursor = value.coerceIn(0, length)
             }
 
-        override fun read(buffer: ByteArray, offset: Int, count: Int): Int = synchronized(file) {
+        /**
+         * Reads synchronously. Not mutex-protected; use [readAsync] for thread-safe access.
+         */
+        override fun read(buffer: ByteArray, offset: Int, count: Int): Int {
             ensureOpen()
             ensureReadable()
 
-            if (cursor >= file.content.size) return@synchronized 0
+            if (cursor >= file.content.size) return 0
 
             val startIndex = cursor.toInt()
             val toRead = min(count, file.content.size - startIndex)
             file.content.copyInto(buffer, offset, startIndex, startIndex + toRead)
             cursor += toRead
-            toRead
+            return toRead
         }
 
-        override fun write(buffer: ByteArray, offset: Int, count: Int) = synchronized(file) {
+        /**
+         * Writes synchronously. Not mutex-protected; use [writeAsync] for thread-safe access.
+         */
+        override fun write(buffer: ByteArray, offset: Int, count: Int) {
             ensureOpen()
             ensureWritable()
 
@@ -111,10 +124,10 @@ class MemoryFile internal constructor(
         }
 
         override suspend fun readAsync(buffer: ByteArray, offset: Int, count: Int): Int =
-            read(buffer, offset, count)
+            file.mutex.withLock { read(buffer, offset, count) }
 
         override suspend fun writeAsync(buffer: ByteArray, offset: Int, count: Int) =
-            write(buffer, offset, count)
+            file.mutex.withLock { write(buffer, offset, count) }
 
         override suspend fun seekAsync(offset: Long) = seek(offset)
 

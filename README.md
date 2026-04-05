@@ -10,6 +10,7 @@
 ## Modules
 
 - `:commonLib` - multiplatform core abstractions (`kt-abstract-storage-core`)
+- `:storage-common-tests` - shared test contracts (`kt-abstract-storage-common-tests`)
 - `:storage-jvm-core` - Android-safe JVM implementations (`kt-abstract-storage-jvm-core`)
 - `:storage-jvm-nio` - desktop JVM `java.nio.file` implementations (`kt-abstract-storage-jvm-nio`)
 - `:storage-android` - Android integration scaffold (`kt-abstract-storage-android`)
@@ -36,7 +37,7 @@ The shared convention configures (via `com.vanniktech.maven.publish`):
 
 Coordinates and POM metadata are controlled through `gradle.properties` and module-level `mavenPublishing { coordinates(...) }` blocks.
 
-Publishable artifacts are produced from `:commonLib`, `:storage-jvm-core`, `:storage-jvm-nio`, and `:storage-android`.
+Publishable artifacts are produced from `:commonLib`, `:storage-common-tests`, `:storage-jvm-core`, `:storage-jvm-nio`, and `:storage-android`.
 
 For Maven Central + signing credentials, set:
 
@@ -70,6 +71,7 @@ Notes:
 
 - `./gradlew publishToMavenLocal`
 - `./gradlew :commonLib:publishToMavenLocal`
+- `./gradlew :storage-common-tests:publishToMavenLocal`
 - `./gradlew :storage-jvm-core:publishToMavenLocal`
 - `./gradlew :storage-jvm-nio:publishToMavenLocal`
 - `./gradlew :storage-android:publishToMavenLocal`
@@ -78,12 +80,10 @@ Notes:
 
 - `./gradlew publish`
 - `./gradlew :commonLib:publish`
+- `./gradlew :storage-common-tests:publish`
 - `./gradlew :storage-jvm-core:publish`
 - `./gradlew :storage-jvm-nio:publish`
 - `./gradlew :storage-android:publish`
 
 If remote credentials/signing keys are missing, only local publication is expected to work.
 
-## Upstream parity tests
-
-The test suite includes Kotlin/JUnit ports derived from `OwlCore.Storage.Tests` (excluding HTTP-specific tests).

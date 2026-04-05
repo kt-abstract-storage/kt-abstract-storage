@@ -12,6 +12,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class RelativePathExtensionsTests {
+    private val samplePaths = listOf("/", "/a/", "/b/", "/c", "/a/a/", "/a/c", "/b/a/c")
+
     private suspend fun buildTree(): MemoryFolder {
         val root = MemoryFolder("root")
         val a = root.createFolderAsync("a") as ModifiableFolder
@@ -45,14 +47,13 @@ class RelativePathExtensionsTests {
     @Test
     fun traverse_and_regenerate_relative_path() = runTest {
         val root = buildTree()
-        val paths = listOf("/", "/a/", "/b/", "/c", "/a/a/", "/a/c", "/b/a/c")
 
-        for (path in paths) {
+        for (path in samplePaths) {
             val item = root.getItemByRelativePathAsync(path)
             if (path == "/") {
                 assertEquals(root, item)
             } else {
-                assertTrue(path.contains(item.name))
+                assertTrue(path.contains(item.name), "Expected '$path' to include '${item.name}'")
             }
 
             if (item is StorableChild) {

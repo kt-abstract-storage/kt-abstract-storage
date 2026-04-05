@@ -20,6 +20,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlinxCoroutinesTest)
+    testImplementation(project(":storage-common-tests"))
     testImplementation(libs.junitJupiterApi)
     testRuntimeOnly(libs.junitJupiterEngine)
     testRuntimeOnly(libs.junitPlatformLauncher)

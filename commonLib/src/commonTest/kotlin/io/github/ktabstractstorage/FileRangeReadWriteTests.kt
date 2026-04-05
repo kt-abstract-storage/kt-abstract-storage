@@ -15,11 +15,17 @@ class FileRangeReadWriteTests {
         return root.createFileAsync(name)
     }
 
+    private suspend fun createFileWithContent(content: String, name: String = "a.txt"): File {
+        val file = createFile(name)
+        file.writeTextAsync(content)
+        return file
+    }
+
+    private fun String.normalizedLines(): String = replace("\r\n", "\n")
+
     @Test
     fun read_lines_range_all_columns() = runTest {
-        val file = createFile()
-        val content = listOf("L0", "L1", "L2", "L3", "L4").joinToString("\n")
-        file.writeTextAsync(content)
+        val file = createFileWithContent(listOf("L0", "L1", "L2", "L3", "L4").joinToString("\n"))
 
         val lines = file.readTextAsync(1 to 4).toList()
         assertContentEquals(listOf("L1", "L2", "L3"), lines)
@@ -27,9 +33,7 @@ class FileRangeReadWriteTests {
 
     @Test
     fun read_lines_and_columns_range() = runTest {
-        val file = createFile()
-        val content = listOf("abcd", "efgh", "ijkl", "mnop").joinToString("\n")
-        file.writeTextAsync(content)
+        val file = createFileWithContent(listOf("abcd", "efgh", "ijkl", "mnop").joinToString("\n"))
 
         val lines = file.readTextAsync(1 to 3, 1 to 3).toList()
         assertContentEquals(listOf("fg", "jk"), lines)
@@ -42,7 +46,7 @@ class FileRangeReadWriteTests {
 
         file.writeTextAsync(content, 1 to 3)
 
-        val output = file.readTextAsync().replace("\r\n", "\n")
+        val output = file.readTextAsync().normalizedLines()
         assertEquals("A1\nA2\nA3", output)
     }
 
@@ -53,7 +57,7 @@ class FileRangeReadWriteTests {
 
         file.writeTextAsync(content, 1 to 3, 1 to 3)
 
-        val output = file.readTextAsync().replace("\r\n", "\n")
+        val output = file.readTextAsync().normalizedLines()
         assertEquals("fg\njk\nno", output)
     }
 
